@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::prelude::*;
 use std::f64::consts::PI;
-use wav_writer::*;
+// use wav_writer::*;
 
 fn main() {
     let header: [u8; 44] = [0x52, 0x49, 0x46, 0x46,     // ChunkID ("RIFF")
@@ -74,5 +74,4 @@ fn write_le_u24() {
     println!("{}", ((val >> 8)) as u8);
     println!("{}", ((val >> 16) & 0xff) as u8);
     println!("{}", ((val >> 16)) as u8);
-    val.say_hello();
 }
