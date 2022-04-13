@@ -119,7 +119,9 @@ It might be helpful to create functions that implement writing lesser endian for
 ## Links
 
 [WAVE PCM soundfile format](http://soundfile.sapp.org/doc/WaveFormat/)
+
 [WAVEFORMTEX](https://docs.microsoft.com/en-us/previous-versions//ms713497(v=vs.85)?redirectedfrom=MSDN)
+
 [hound, a library which implements the Wav spec](https://github.com/ruuda/hound)
 
 
