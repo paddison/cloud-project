@@ -17,7 +17,7 @@ fn main() {
                             0x40, 0x1F, 0x00, 0x00];    // Subchunk2Size (NumSamples * NumChannles * BitsPerSample / 8 = 8000)
 
     let lower = write_frequency(220);
-    let higher = write_frequency(220 * 13 / 12);
+    let higher = write_frequency(220 * 5 / 3);
     let mut data = [0; 8000];
     for (i, (prim, fifth)) in lower.iter().zip(higher.iter()).enumerate() {
         data[i] = ((*prim as u16 + *fifth as u16) as f64 * 0.5) as u8; 

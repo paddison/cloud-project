@@ -65,7 +65,7 @@ The data might be transfered in JSON-Format, which might look like this:
         },
         wav_data: {
             frequency: Array[int],
-            length: float or int,
+            duration: float or int,
             volume: float
         }
     }
@@ -94,8 +94,8 @@ The WavWriter should be initialized with the WavSpec struct. It wraps a ChunkWri
 #### ChunkWriter
 
 Does all the actual writing. It holds information about the WavSpec, a Writer, which will write to a file, and a buffer which holds the data chunk temporarily.
-When initializing, it should add the main information of the header into a temporary buffer (e.g. a &[u8; 44] array). After writing all the information of the header, the temporary buffer should be written into the buffer of the writer.
-Upon finishing the writing of all the data, it should update the size fields of the header in the its buffer, and then write its whole buffer into the file. This might be implemented through the `Drop` trait, which is a function that gets called when a value goes out of scope.
+Upon initializing, it should add the main information of the header into a temporary buffer (e.g. a `[u8; 44]` array). After writing all the information of the header, the temporary buffer should be written into the buffer of the writer.
+After finishing the writing of all the data, it should update the size fields of the header in the its buffer, and then write its whole buffer into the file. This might be implemented through the `Drop` trait, which is a function that gets called when a value goes out of scope.
 
 The ChunkWriter does not know which data it writes into the data chunk, meaning it will have no information on the actual sine wave it will write.
 
@@ -109,7 +109,28 @@ It might be helpful to create functions that implement writing lesser endian for
 
 ### Generating Sine Wave Functions
 
+The main function for generating Sine Wave needs to know about the sample rate and bits per sample, as well as the specified duration, frequencies and volume (optional).
 
+Thus a `SineWaveSpec` struct holding this information might look something like this:
+
+```
+struct SineWaveSpec {
+    wav_spec: &WavSpec,
+    frequencies: Vec<u16>,
+    duration: u16,
+    volume: f64,
+}
+```
+
+The function for creating the audio data should be able to do the following:
+
+Determine the amount of frequencies needed to write. Determine how many entries need to be written, e.g. if the duration of the file is 2 seconds and the sample rate is at 8000, a total 
+of `2 * 8000` datapoints need to be written, for each frequency. 
+The datapoints for each frequency must be calculated seperately and added together in the end. Afterwards they need to be scaled to a range of -1 to 1. It might be better to add the frequencies and then scale, since it will probably require less operations in total compared to scaling each frequency's data immediately after calculating. The scale factor will be the reciprocal of the length of the `SineWaveSpec.frequencies` Vector (`1 / SineWaveSpec.frequencies`).
+
+The actual function for calculating a sine wave is: `sin(2 * pi * frequency * x)`.
+
+As a last step, all the datapoints need to be convert to the correct bits_per_sample. There are to possibilites for doing this: Either the `ChunkWriter` will be responsible for the conversion, or the sine wave generating function. Afterwards they can be written into the Buffer of the `ChunkWriter`.
 
 ## Notes
 
