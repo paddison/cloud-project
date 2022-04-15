@@ -145,5 +145,7 @@ As a last step, all the datapoints need to be convert to the correct bits_per_sa
 
 [hound, a library which implements the Wav spec](https://github.com/ruuda/hound)
 
+[information on ratios of intervals](https://www.audiolabs-erlangen.de/resources/MIR/FMP/C5/C5S1_Intervals.html)
+
 
 
