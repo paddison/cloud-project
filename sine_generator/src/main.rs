@@ -1,11 +1,9 @@
 use std::fs::File;
 use std::io::prelude::*;
 use std::f64::consts::PI;
-use sine_generator::Person;
-// use wav_writer::*;
+use sine_generator::WavSpec;
 
 fn main() {
-    let p = Person::new(String::from("golgwr"));
     let header: [u8; 44] = [0x52, 0x49, 0x46, 0x46,     // ChunkID ("RIFF")
                             0x28, 0x5F, 0xF0, 0x00,     // ChunkSize 8032
                             0x57, 0x41, 0x56, 0x45,     // Format ("WAVE")
