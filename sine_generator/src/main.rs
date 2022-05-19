@@ -1,4 +1,4 @@
-use sine_generator::{WavSpec, writer::WavWriter, frequencyWrite::{SineWavSpec, self}};
+use sine_generator::{WavSpec, writer::WavWriter, frequency_writer::{SineWavSpec, self}};
 
 const PRIM: (u16, u16) = (1, 1);
 const MIN_SEC: (u16, u16) = (16, 15);
@@ -138,5 +138,5 @@ fn main() {
     let freqs = scale.write(440);
     let sine_spec = SineWavSpec::new(&spec, freqs.to_vec(), 20, 0.).expect("invalid specification");
 
-    frequencyWrite::write_wave(sine_spec, writer);
+    frequency_writer::write_wave(sine_spec, writer);
 }
