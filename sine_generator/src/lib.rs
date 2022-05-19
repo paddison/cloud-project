@@ -3,6 +3,7 @@ use std::io;
 use writer::WriteExtension;
 
 pub mod writer;
+pub mod frequencyWrite;
 /// A struct containing metadata about the Wave file that will be created.
 #[derive(Clone, Copy)]
 pub struct WavSpec {
