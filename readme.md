@@ -68,10 +68,11 @@ The data might be transfered in JSON-Format, which might look like this:
             sample_rate: integer,
             bits_per_sample: integer
         },
-       
-        frequencies: Array[int],
-        duration: integer,
-        volume: float      
+        wav_data: {
+           frequencies: Array[int],
+           duration: integer,
+           volume: float   
+        }
     }
 }
 ```
