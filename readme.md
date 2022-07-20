@@ -18,7 +18,11 @@ The app should be structured into two main parts. A small hosted website, from w
 
 The file itself might be saved in a bucket. The website might ask the bucket for the status of the file-creation
 with a specified id. After a file with the id is found, it might be sent to the user to download it.
-After the download was completed, the file may be deleted from the bucket
+After the download was completed, the file may be deleted from the bucket.
+
+For creating a request from the frontend a id is needed. In order to create an id, the lambda will send a request to a database with the metadata of the initial request, which in turn will return the id for the lambda.
+
+Afterwards the lambda will create the wav file and send a response to the frontend with the id of the new file.
 
 It might look something like this:
 
