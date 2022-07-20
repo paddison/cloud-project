@@ -1,14 +1,7 @@
 use std::f64::consts::PI;
-// use sine_generator::WavSpec;
-use crate::writer::WavWriter;
 
-use crate::{ WavSpec };
-
-// pub struct WavSpec {
-//     number_of_channels: u16,
-//     sample_rate: u32,
-//     bits_per_sample: u16,
-// }
+use crate::wav_writer::WavWriter;
+use crate::WavSpec;
 
 pub struct SineWavSpec<'spec> {
     wav_spec: &'spec WavSpec,

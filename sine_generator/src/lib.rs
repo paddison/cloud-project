@@ -1,8 +1,8 @@
 use std::io;
 
-use writer::WriteExtension;
+use wav_writer::WriteExtension;
 
-pub mod writer;
+pub mod wav_writer;
 pub mod frequency_writer;
 /// A struct containing metadata about the Wave file that will be created.
 #[derive(Clone, Copy)]
