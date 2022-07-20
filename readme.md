@@ -63,7 +63,6 @@ The data might be transfered in JSON-Format, which might look like this:
 ```
 {
     request: {
-        id: string,
         wav_spec: {
             number_of_channels: integer,
             sample_rate: integer,
