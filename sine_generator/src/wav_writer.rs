@@ -1,7 +1,7 @@
 use std::io::{Seek, Write, self, BufWriter, SeekFrom };
 use std::fs::File;
 
-use crate::{ WavSpec, Sample };
+use crate::{ data_formats::WavSpec, Sample };
 
 /// Provides functionality in order to write numbers in lesser endian 
 /// which is required for the data fields
