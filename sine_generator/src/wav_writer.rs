@@ -17,7 +17,7 @@ where W: Write
 {
     #[inline(always)]
     fn write_u8(&mut self, n: u8) -> io::Result<()> {
-       self.write_all(&vec![n])
+       self.write_all(&[n])
     }
 
     #[inline(always)]
@@ -34,7 +34,7 @@ where W: Write
         buffer[0] = (n & 255) as u8;
         buffer[1] = ((n >> 8) & 255) as u8;
         buffer[2] = ((n >> 16) & 255) as u8;
-        buffer[3] = ((n >> 24)) as u8;
+        buffer[3] = (n >> 24) as u8;
         self.write_all(&buffer)
     }
 }
@@ -184,8 +184,8 @@ where W: Write + Seek
     fn flush(&mut self) -> io::Result<()> {
         if !self.data_state.is_valid_length() {
             self.data_state.bytes_written += match self.spec.bits_per_sample {
-                8 => self.write(0 as u8),
-                16 => self.write(0 as i16),
+                8 => self.write(0_u8),
+                16 => self.write(0_i16),
                 _ => panic!("Only 8 or 16 bit are supported"),
             }?;
         }

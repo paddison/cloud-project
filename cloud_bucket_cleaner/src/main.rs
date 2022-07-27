@@ -20,12 +20,29 @@ async fn function_handler(event: LambdaEvent<CloudWatchEvent>) -> Result<(), Err
     let db_client = aws_sdk_dynamodb::Client::new(&config);
     let s3_client = aws_sdk_s3::Client::new(&config);
 
-    // get all entries from dynamodb from a certain time frame and marked as downloaded
-    let deleted_entries = delete_downloaded(&db_client, &s3_client, &payload).await?;
+    // delete all files that are marked as downloaded and where created at the day of the request
+    let deleted_downloaded = delete_downloaded(&db_client, &s3_client, &payload).await?;
+
+    // delete all files that are older than DELETE_AFTER days !! NEED TO CHECK IF NANOSECONDS ARE CORRECT !!
+    let deleted_old = delete_old(&s3_client, &payload).await?;
+
+    info!("Deleted {} files that where already downloaded!\nDeleted {} files that were old and still in bucket", 
+          deleted_downloaded.len(), deleted_old.len());
+    debug!("Deleleted ids: \n{:?}\n{:?}", deleted_downloaded, deleted_old);
+
+    Ok(())
+}
+
+async fn delete_downloaded (
+    db_client: &aws_sdk_dynamodb::Client, 
+    s3_client: &aws_sdk_s3::Client,
+    payload: &CloudWatchEvent) 
+-> Result<Vec<String>, Error> {
+    // get timestamp of request
     let (date, time) = string_from_date_time(payload.time);
     info!("Date: {}, time: {}", date, time);
 
-    let query_results = query_for_date("date", &date, &db_client).await?;
+    let query_results = query_for_date("date", &date, db_client).await?;
     debug!("Query results: {:?}", query_results);
     info!("Found {} items for querying date.", query_results.count);
     
@@ -37,22 +54,34 @@ async fn function_handler(event: LambdaEvent<CloudWatchEvent>) -> Result<(), Err
                         .collect(),
         None => vec![],
     };
-    info!("Found ids: {:?}", file_ids);
+
+    debug!("Found ids: {:?}", file_ids);
+
+    let mut deleted_files = vec![];
 
     // delete found files from bucket
     for id in file_ids {
         let file_name = id.clone() + ".wav";
         match delete_from_bucket(&file_name, &s3_client).await {
-            Ok(_) => info!("Deleted Object!"),
+            Ok(_) => { 
+                info!("Deleted Object!");
+                deleted_files.push(id);
+            },
             Err(e) => error!("Error while handling delete request: {}", e),
         }
     }
+    Ok(deleted_files)
+}
 
-    // delete all files that are older than DELETE_AFTER days !! NEED TO CHECK IF NANOSECONDS ARE CORRECT !!
+async fn delete_old (
+    s3_client: &aws_sdk_s3::Client,
+    payload: &CloudWatchEvent) 
+-> Result<Vec<String>, Error> {
     let delete_date = payload.time.checked_sub_signed(Duration::days(DELETE_AFTER)).unwrap();
     info!("Deleting everything older than: {:?}", delete_date);
 
     let list_output = s3_client.list_objects().bucket(BUCKET_NAME).send().await?;
+    let mut deleted_files = vec![];
     if let Some(files) = list_output.contents {
         for file in files {
             // skip files that are not old enough
@@ -69,47 +98,15 @@ async fn function_handler(event: LambdaEvent<CloudWatchEvent>) -> Result<(), Err
             }
 
             match delete_from_bucket(file.key.as_ref().unwrap(), &s3_client).await {
-                Ok(_) => info!("Deleted Object!"),
+                Ok(_) => {
+                    info!("Deleted Object!");
+                    deleted_files.push(file.key().unwrap().to_owned());
+                },
                 Err(e) => error!("Error while handling delete request: {}", e),
             }
         }
     }
-    
-
-    Ok(())
-}
-
-async fn delete_downloaded (
-    db_client: &aws_sdk_dynamodb::Client, 
-    s3_client: &aws_sdk_s3::Client,
-    payload: &CloudWatchEvent) 
--> Result<Vec<String>, Error> {
-    let (date, time) = string_from_date_time(payload.time);
-    info!("Date: {}, time: {}", date, time);
-
-    let query_results = query_for_date("date", &date, db_client).await?;
-    debug!("Query results: {:?}", query_results);
-    info!("Found {} items for querying date.", query_results.count);
-    
-    let file_ids = match query_results.items {
-        Some(items) => items
-                        .iter()
-                        .filter(|item| *item["is_downloaded"].as_bool().unwrap())
-                        .map(|item| item["id"].as_s().unwrap().to_owned())
-                        .collect(),
-        None => vec![],
-    };
-    info!("Found ids: {:?}", file_ids);
-
-    // delete found files from bucket
-    for id in file_ids {
-        let file_name = id.clone() + ".wav";
-        match delete_from_bucket(&file_name, &s3_client).await {
-            Ok(_) => info!("Deleted Object!"),
-            Err(e) => error!("Error while handling delete request: {}", e),
-        }
-    }
-    Ok(vec![])
+    Ok(deleted_files)
 }
 
 /// Queries the database for entries that match are certain date.
