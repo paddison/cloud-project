@@ -8,8 +8,10 @@ use serde_json::{json, Value};
 use sine_generator::data_formats::{WavData, WavSpec, Verifiable};
 use tracing::{info, debug};
 
-const GENERATOR_LAMBDA: &str = "cloud_sine_generator";
-const TABLE_NAME: &str = "wave_file";
+const GENERATOR_LAMBDA: Option<&str> = option_env!("TF_VAR_GENERATOR_LAMBDA");
+const GENERATOR_LAMBDA_FALLBACK: &str = "cloud-sine-generator";
+const TABLE_NAME: Option<&str> = option_env!("TF_VAR_BUCKET_NAME");
+const TABLE_NAME_FALLBACK: &str = "cloud-wave-file";
 const ID_SEPARATOR: &str = "_";
 
 #[derive(Debug)]
@@ -90,7 +92,7 @@ async fn function_handler(event: LambdaEvent<Value>) -> Result<Value, Error> {
     let lambda_payload = json!({ "wav_id": partition_key, "wav_data": body["wav_data"], "wav_spec": body["wav_spec"] });
     
     info!("Invoking lambda with:\n{:?}", lambda_payload);
-    let lambda = lambda_client.invoke().invocation_type(InvocationType::Event).function_name(GENERATOR_LAMBDA).payload(Blob::new(lambda_payload.to_string())).send().await?; // don't wait for response
+    let lambda = lambda_client.invoke().invocation_type(InvocationType::Event).function_name(GENERATOR_LAMBDA.unwrap_or(GENERATOR_LAMBDA_FALLBACK)).payload(Blob::new(lambda_payload.to_string())).send().await?; // don't wait for response
     debug!("Lambda output {:?}", lambda);
 
     let response = json!({"id": partition_key, "request_id": context.request_id});
@@ -110,7 +112,7 @@ fn create_partition_key(spec: &WavSpec, request_id: &str) -> String {
 async fn store_item_to_db(client: &aws_sdk_dynamodb::Client, item: DBItem) -> Result<PutItemOutput, SdkError<PutItemError>> {
     client
         .put_item()
-        .table_name(TABLE_NAME)
+        .table_name(TABLE_NAME.unwrap_or(TABLE_NAME_FALLBACK))
         .set_item(Some(item.into()))
         .send().await
 } 

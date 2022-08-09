@@ -6,9 +6,12 @@ use chrono::{DateTime, TimeZone, Duration, Utc};
 use lambda_runtime::{run, service_fn, Error, LambdaEvent};
 use tracing::{info, debug, error};
 
-static TABLE_NAME: &str = "wave_file";
-static GLOBAL_INDEX: &str = "date-time-index";
-static BUCKET_NAME: &str = "cloud-wav-file-bucket";
+static TABLE_NAME: Option<&str> = option_env!("TF_VAR_TABLE_NAME"); 
+static TABLE_NAME_FALLBACK: &str = "cloud-wave-file";
+static GLOBAL_INDEX: Option<&str> = option_env!("TF_VAR_GLOBAL_INDEX");
+static GLOBAL_INDEX_FALLBACK: &str = "cloud-date-time-index";
+static BUCKET_NAME: Option<&str> = option_env!("TF_VAR_BUCKET_NAME");
+static BUCKET_NAME_FALLBACK: &str = "cloud-wave-file-bucket";
 static DELETE_AFTER: i64 = 2;
 
 async fn function_handler(event: LambdaEvent<CloudWatchEvent>) -> Result<(), Error> {
@@ -80,7 +83,7 @@ async fn delete_old (
     let delete_date = payload.time.checked_sub_signed(Duration::days(DELETE_AFTER)).unwrap();
     info!("Deleting everything older than: {:?}", delete_date);
 
-    let list_output = s3_client.list_objects().bucket(BUCKET_NAME).send().await?;
+    let list_output = s3_client.list_objects().bucket(BUCKET_NAME.unwrap_or(BUCKET_NAME_FALLBACK)).send().await?;
     let mut deleted_files = vec![];
     if let Some(files) = list_output.contents {
         for file in files {
@@ -116,8 +119,8 @@ async fn query_for_date(partition_key: &str, value: &str, client: &aws_sdk_dynam
 -> Result<QueryOutput, SdkError<QueryError>> {
     client
         .query()
-        .table_name(TABLE_NAME)
-        .index_name(GLOBAL_INDEX)
+        .table_name(TABLE_NAME.unwrap_or(TABLE_NAME_FALLBACK))
+        .index_name(GLOBAL_INDEX.unwrap_or(GLOBAL_INDEX_FALLBACK))
         .key_condition_expression("#dt = :ymd")
         .expression_attribute_names("#dt", partition_key)
         .expression_attribute_values(":ymd", AttributeValue::S(value.to_owned()))
@@ -139,7 +142,7 @@ async fn delete_from_bucket(key: &str, client: &aws_sdk_s3::Client)
 -> Result<DeleteObjectOutput, SdkError<DeleteObjectError>> {
     client
         .delete_object()
-        .bucket(BUCKET_NAME)
+        .bucket(BUCKET_NAME.unwrap_or(BUCKET_NAME_FALLBACK))
         .key(key)
         .send().await
 }
