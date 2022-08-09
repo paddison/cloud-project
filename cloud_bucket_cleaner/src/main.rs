@@ -2,7 +2,7 @@ use aws_lambda_events::event::cloudwatch_events::CloudWatchEvent;
 use aws_sdk_config::types::SdkError;
 use aws_sdk_dynamodb::{model::AttributeValue, output::QueryOutput, error::QueryError};
 use aws_sdk_s3::{output::DeleteObjectOutput, error::DeleteObjectError};
-use chrono::{DateTime, TimeZone, Duration};
+use chrono::{DateTime, TimeZone, Duration, Utc};
 use lambda_runtime::{run, service_fn, Error, LambdaEvent};
 use tracing::{info, debug, error};
 
@@ -145,9 +145,11 @@ async fn delete_from_bucket(key: &str, client: &aws_sdk_s3::Client)
 }
 
 fn string_from_date_time<T: TimeZone>(dt: DateTime<T>) -> (String, String) 
-where T::Offset: std::fmt::Display
+where T::Offset: std::fmt::Display, chrono::DateTime<T>: From<chrono::DateTime<Utc>>
 {
-    (dt.format("%F").to_string(), dt.format("%T").to_string())
+    // we are interested in the items from the previous day
+    let dt_prev = dt.checked_sub_signed(Duration::days(1)).or(Some(Utc::now().into())).unwrap();
+    (dt_prev.format("%F").to_string(), dt_prev.format("%T").to_string())
 }
 
 #[tokio::main]

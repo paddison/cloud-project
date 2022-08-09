@@ -33,7 +33,7 @@ pub struct WavData {
 
 impl Verifiable for WavData {
     fn is_valid(&self) -> bool {
-        self.duration > 0 && self.duration <= 60 && self.volume >= 0.0 && self.volume <= 1.0
+        self.duration > 0 && self.duration <= 1800 && self.volume >= 0.0 && self.volume <= 1.0
     }
 }
 
