@@ -1,5 +1,8 @@
 name: Rust
 
+on: workflow_dispatch # trigger manually for now
+  
+
 env:
   CARGO_TERM_COLOR: always
 
