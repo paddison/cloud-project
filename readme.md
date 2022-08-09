@@ -8,12 +8,12 @@ A cloud application, in which a user can specify a set of parameters to create a
 
 ## ENV-Variables for Deployment
 
-TF_VAR_TABLE_NAME: Name of Table Name in DynamoDB, containing info on requests and wav files
-TF_VAR_GLOBAL_INDEX: Name of Global Index in DynamoDB
-TF_VAR_BUCKET_NAME: Name of Bucket storing all wav files
-TF_VAR_GENERATOR_LAMBDA: Name of Lambda function which generates the actual wav file
-TF_VAR_CLEANER_LAMBDA: Name of Lambda which cleans old/downloaded files from bucket
-TF_VAR_MAIN_LAMBDA: Name of Main Lambda, which gets invoked by frontend
+- TF_VAR_TABLE_NAME: Name of Table Name in DynamoDB, containing info on requests and wav files
+- TF_VAR_GLOBAL_INDEX: Name of Global Index in DynamoDB
+- TF_VAR_BUCKET_NAME: Name of Bucket storing all wav files
+- TF_VAR_GENERATOR_LAMBDA: Name of Lambda function which generates the actual wav file
+- TF_VAR_CLEANER_LAMBDA: Name of Lambda which cleans old/downloaded files from bucket
+- TF_VAR_MAIN_LAMBDA: Name of Main Lambda, which gets invoked by frontend
 
 ## General 
 
