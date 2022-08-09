@@ -16,7 +16,8 @@ use tracing::{info, error};
 use serde_json::{json, Value};
 use sine_generator::{data_formats::{WavSpec, WavData} , frequency_writer::{SineWavSpec, self}};
 
-const BUCKET_NAME: &str = "cloud-wav-file-bucket";
+const BUCKET_NAME: Option<&str> = option_env!("TF_VAR_BUCKET_NAME");
+const BUCKET_NAME_FALLBACK: &str = "cloud-wav-file-bucket";
 
 #[derive(Debug)]
 struct WavSpecErr(&'static str);
@@ -103,7 +104,7 @@ async fn store_in_bucket(file_path: &Path) -> Result<(), Error> {
     info!("Putting file into bucket...");
     let _ = client
         .put_object()
-        .bucket(BUCKET_NAME)
+        .bucket(BUCKET_NAME.unwrap_or(BUCKET_NAME_FALLBACK))
         .key(file_path.file_name().unwrap().to_str().unwrap())
         .body(file)
         .send().await?;
