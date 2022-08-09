@@ -1,6 +1,7 @@
 use std::{fmt::Display, error, collections::HashMap};
 
 use aws_sdk_dynamodb::{model::AttributeValue, output::PutItemOutput, error::PutItemError, types::SdkError};
+use chrono::{Utc, Datelike, Timelike};
 use lambda_runtime::{service_fn, LambdaEvent, Error};
 use aws_sdk_lambda::{types::Blob, model::InvocationType};
 use serde_json::{json, Value};
@@ -9,6 +10,7 @@ use tracing::{info, debug};
 
 const GENERATOR_LAMBDA: &str = "cloud_sine_generator";
 const TABLE_NAME: &str = "wave_file";
+const ID_SEPARATOR: &str = "_";
 
 #[derive(Debug)]
 struct InvalidRequestErr(&'static str);
@@ -27,30 +29,40 @@ struct DBItem {
     is_downloaded: AttributeValue,
     request_id: AttributeValue,
     specs: AttributeValue,
+    date: AttributeValue,
+    time: AttributeValue,
 }
 
 impl DBItem {
-    pub fn new(partition_key: &str, context: &lambda_runtime::Context, data: Value, spec: Value) -> Self {
+    pub fn new(partition_key: &str, 
+            context: &lambda_runtime::Context, 
+            data: Value, 
+            spec: Value, 
+            (a_date, a_time): (String, String)) -> Self {
+
         let is_downloaded = AttributeValue::Bool(false);
         let request_id = AttributeValue::S(context.request_id.clone());
         let id = AttributeValue::S(partition_key.to_owned());
         let data = value_to_item(data);
         let spec = value_to_item(spec);
         let specs = AttributeValue::M(HashMap::from([("wav_spec".to_owned(), spec), ("wav_data".to_owned(), data)]));
-        
-        DBItem { id, is_downloaded, request_id, specs }
+        let date = AttributeValue::S(a_date);
+        let time = AttributeValue::S(a_time);
+        DBItem { id, is_downloaded, request_id, specs, date, time }
     }
 }
 
-impl Into<HashMap<String, AttributeValue>> for DBItem {
-    fn into(self) -> HashMap<String, AttributeValue> {
+impl From<DBItem> for HashMap<String, AttributeValue> {
+    fn from(item: DBItem) -> Self { 
         HashMap::from([
-            ("id".to_owned(), self.id),
-            ("is_downloaded".to_owned(), self.is_downloaded),
-            ("request_id".to_owned(), self.request_id),
-            ("specs".to_owned(), self.specs),
+            ("id".to_owned(), item.id),
+            ("is_downloaded".to_owned(), item.is_downloaded),
+            ("request_id".to_owned(), item.request_id),
+            ("specs".to_owned(), item.specs),
+            ("date".to_owned(), item.date),
+            ("time".to_owned(), item.time),
         ])
-    }
+     }
 }
 
 async fn function_handler(event: LambdaEvent<Value>) -> Result<Value, Error> {
@@ -68,7 +80,7 @@ async fn function_handler(event: LambdaEvent<Value>) -> Result<Value, Error> {
 
     info!("Creating entry for dynamoDB");
     let partition_key = create_partition_key(&spec, &context.request_id);
-    let item = DBItem::new(&partition_key, &context, body["wav_data"].clone(), body["wav_spec"].clone());
+    let item = DBItem::new(&partition_key, &context, body["wav_data"].clone(), body["wav_spec"].clone(), get_date_time());
 
     // store in dynamo db
     info!("Inserting into dynamoDB");
@@ -81,23 +93,18 @@ async fn function_handler(event: LambdaEvent<Value>) -> Result<Value, Error> {
     let lambda = lambda_client.invoke().invocation_type(InvocationType::Event).function_name(GENERATOR_LAMBDA).payload(Blob::new(lambda_payload.to_string())).send().await?; // don't wait for response
     debug!("Lambda output {:?}", lambda);
 
+    let response = json!({"id": partition_key, "request_id": context.request_id});
 
-    Ok(json!({"id": partition_key, "request_id": context.request_id}))
+    info!("Response: {}", response);
+    Ok(response)
 }
 
 fn create_partition_key(spec: &WavSpec, request_id: &str) -> String {
-    let mut partition_key = match request_id.split("-").next() {
+    let prefix = match request_id.split('-').next() {
         Some(prefix) => prefix.to_owned(),
         None => "0000000".to_owned(),
     };
-    partition_key += "#";
-    partition_key += &spec.number_of_channels.to_string();
-    partition_key += "#";
-    partition_key += &spec.sample_rate.to_string();
-    partition_key += "#";
-    partition_key += &spec.bits_per_sample.to_string();
-    
-    partition_key
+    format!("{}{ID_SEPARATOR}{}{ID_SEPARATOR}{}{ID_SEPARATOR}{}", prefix, spec.number_of_channels, spec.sample_rate, spec.bits_per_sample)
 }
 
 async fn store_item_to_db(client: &aws_sdk_dynamodb::Client, item: DBItem) -> Result<PutItemOutput, SdkError<PutItemError>> {
@@ -139,6 +146,21 @@ fn value_to_item(value: Value) -> AttributeValue {
     }
 }
 
+// get current date and time, to store into the database
+fn get_date_time() -> (String, String) {
+    let now = Utc::now();
+
+    let date = format!("{}-{:02}-{:02}", now.year(), now.month(), now.day());
+    let time = format!("{:02}:{:02}:{:02}", hour12_to_hour24(now.hour12()), now.minute(), now.second());
+
+    (date, time)
+}
+
+// converts hours from 1-12 to 0-23
+fn hour12_to_hour24((is_pm, hr): (bool, u32)) -> u32 {
+    if is_pm { hr + 11 } else { hr - 1 }
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     tracing_subscriber::fmt()
@@ -174,7 +196,7 @@ fn test_create_db_item() {
     let spec = request["wav_spec"].clone();
     let context = lambda_runtime::Context::default();
 
-    let item = DBItem::new("123", &context, data, spec);
+    let item = DBItem::new("123", &context, data, spec, ("2022-02-04".to_owned(), "12:12:12".to_owned()));
     println!("{:?}", item);
 }
 
@@ -186,6 +208,6 @@ fn test_create_partition_key() {
     let request_id = "567fab82-770a-44ef-8aab-d434a0b07a33";
 
     let partition_key = create_partition_key(&spec, request_id);
-
-    assert_eq!(partition_key, "567fab82#2#23000#16".to_owned());
+    let expected = format!("567fab82{ID_SEPARATOR}2{ID_SEPARATOR}23000{ID_SEPARATOR}16");
+    assert_eq!(partition_key, expected);
 }
