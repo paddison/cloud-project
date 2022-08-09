@@ -9,8 +9,9 @@ use sine_generator::data_formats::{WavData, WavSpec, Verifiable};
 use tracing::{info, debug};
 
 const GENERATOR_LAMBDA: Option<&str> = option_env!("TF_VAR_GENERATOR_LAMBDA");
-const GENERATOR_LAMBDA_FALLBACK: &str = "cloud_sine_generator";
-const TABLE_NAME: &str = "wave_file";
+const GENERATOR_LAMBDA_FALLBACK: &str = "cloud-sine-generator";
+const TABLE_NAME: Option<&str> = option_env!("TF_VAR_BUCKET_NAME");
+const TABLE_NAME_FALLBACK: &str = "cloud-wave-file";
 const ID_SEPARATOR: &str = "_";
 
 #[derive(Debug)]
@@ -111,7 +112,7 @@ fn create_partition_key(spec: &WavSpec, request_id: &str) -> String {
 async fn store_item_to_db(client: &aws_sdk_dynamodb::Client, item: DBItem) -> Result<PutItemOutput, SdkError<PutItemError>> {
     client
         .put_item()
-        .table_name(TABLE_NAME)
+        .table_name(TABLE_NAME.unwrap_or(TABLE_NAME_FALLBACK))
         .set_item(Some(item.into()))
         .send().await
 } 

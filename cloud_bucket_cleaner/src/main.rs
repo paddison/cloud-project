@@ -7,11 +7,11 @@ use lambda_runtime::{run, service_fn, Error, LambdaEvent};
 use tracing::{info, debug, error};
 
 static TABLE_NAME: Option<&str> = option_env!("TF_VAR_TABLE_NAME"); 
-static TABLE_NAME_FALLBACK: &str = "wave_file";
+static TABLE_NAME_FALLBACK: &str = "cloud-wave-file";
 static GLOBAL_INDEX: Option<&str> = option_env!("TF_VAR_GLOBAL_INDEX");
-static GLOBAL_INDEX_FALLBACK: &str = "date-time-index";
+static GLOBAL_INDEX_FALLBACK: &str = "cloud-date-time-index";
 static BUCKET_NAME: Option<&str> = option_env!("TF_VAR_BUCKET_NAME");
-static BUCKET_NAME_FALLBACK: &str = "cloud-wav-file-bucket";
+static BUCKET_NAME_FALLBACK: &str = "cloud-wave-file-bucket";
 static DELETE_AFTER: i64 = 2;
 
 async fn function_handler(event: LambdaEvent<CloudWatchEvent>) -> Result<(), Error> {
