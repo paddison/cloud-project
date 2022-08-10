@@ -507,7 +507,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "cloud_bucket_cleaner"
+name = "cloud-bucket-cleaner"
 version = "0.1.0"
 dependencies = [
  "aws-config",
@@ -524,7 +524,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "cloud_main_lambda"
+name = "cloud-main"
 version = "0.1.0"
 dependencies = [
  "aws-config",
@@ -541,7 +541,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "cloud_sine_generator"
+name = "cloud-sine-generator"
 version = "0.1.0"
 dependencies = [
  "aws-config",
