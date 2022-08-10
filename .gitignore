@@ -1,3 +1,5 @@
 */target
 */.DS_store
 */*.wav
+target
+.DS_store
