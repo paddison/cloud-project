@@ -1,0 +1,37 @@
+name: Rust
+
+on: workflow_dispatch # trigger manually for now
+  
+
+env:
+  TF_VAR_TABLE_NAME: "cloud-wave-file" 
+  TF_VAR_GLOBAL_INDEX: "cloud-date-time-index"
+  TF_VAR_BUCKET_NAME: "cloud-wave-file-bucket"
+  TF_VAR_GENERATOR_LAMBDA: "cloud-sine-generator"
+  TF_VAR_CLEANER_LAMBDA: "cloud-bucket-cleaner"
+  TF_VAR_MAIN_LAMBDA: "cloud-main"
+
+jobs:
+  build-lambdas:
+
+    runs-on: self-hosted
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cargo lambda build --release
+  
+  upload-artifacts:
+
+    needs: build-lambdas
+    runs-on: self-hosted
+    steps:
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: lambda-binaries
+        path: |
+          'target/lambda/cloud_main_lambda/bootstrap'
+          'target/lambda/cloud_bucket_cleaner/bootstrap'
+          'target/lambda/cloud_sine_generator/bootstrap'
+
