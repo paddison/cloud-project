@@ -1,5 +1,5 @@
 [package]
-name = "cloud_bucket_cleaner"
+name = "cloud-bucket-cleaner"
 version = "0.1.0"
 edition = "2021"
 

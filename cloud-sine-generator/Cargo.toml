@@ -1,5 +1,5 @@
 [package]
-name = "cloud_sine_generator"
+name = "cloud-sine-generator"
 version = "0.1.0"
 edition = "2021"
 
