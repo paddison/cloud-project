@@ -1,0 +1,16 @@
+{
+  "wav_data": {
+    "duration": 2,
+    "frequencies": [
+      440,
+      660,
+880, 1000, 1200, 1300
+    ],
+    "volume": 0.9
+  },
+  "wav_spec": {
+    "bits_per_sample": 16,
+    "number_of_channels": 2,
+    "sample_rate": 44100
+  }
+}
