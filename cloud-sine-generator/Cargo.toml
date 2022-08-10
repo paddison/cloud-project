@@ -24,4 +24,4 @@ tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt"] }
 serde_json = "1.0.82"
 serde = { version = "1.0.140", features = ["derive"] }
-sine_generator = { path = "../sine_generator" }
+sine_generator = { path = "../sine-generator" }
