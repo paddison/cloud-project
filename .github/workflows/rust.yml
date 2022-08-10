@@ -17,9 +17,9 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - uses: actions/checkout@v3
+    #- uses: actions/checkout@v3
     - name: Build
-      run: cargo lambda build --release
+      run: echo 'not building now' #cargo lambda build --release
   
   upload-artifacts:
 
@@ -31,7 +31,7 @@ jobs:
       with:
         name: lambda-binaries
         path: |
-          'target/lambda/cloud_main_lambda/bootstrap'
-          'target/lambda/cloud_bucket_cleaner/bootstrap'
-          'target/lambda/cloud_sine_generator/bootstrap'
+          target/lambda/cloud_main_lambda/bootstrap
+          target/lambda/cloud_bucket_cleaner/bootstrap
+          target/lambda/cloud_sine_generator/bootstrap
 
