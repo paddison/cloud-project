@@ -1,7 +1,7 @@
 [workspace]
 
 members = [
-    "cloud_bucket_cleaner",
-    "cloud_main_lambda",
-    "cloud_sine_generator"
+    "cloud-bucket-cleaner",
+    "cloud-main",
+    "cloud-sine-generator"
 ]
