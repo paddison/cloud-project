@@ -17,21 +17,32 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    #- uses: actions/checkout@v3
+    - uses: actions/checkout@v3
     - name: Build
-      run: echo 'not building now' #cargo lambda build --release
+      run: cargo lambda build --release
   
   upload-artifacts:
-
+    env:
+      BIN_PATH: "target/lambda"
+      BIN_NAME: "bootstrap.zip"
+      
     needs: build-lambdas
     runs-on: self-hosted
+    
     steps:
+    - name: Zip Bootstrap Binaries
+      run: |
+        zip target/lambda/cloud-main/bootstrap target/lambda/cloud-main/bootstrap.zip
+        zip target/lambda/cloud-bucket-cleaner/bootstrap target/lambda/cloud-bucket-cleaner/bootstrap.zip
+        zip target/lambda/cloud-sine-generator/bootstrap target/lambda/cloud-sine-generator/bootstrap.zip
+        
+    
     - name: Upload Artifacts
       uses: actions/upload-artifact@v3
       with:
         name: lambda-binaries
         path: |
-          target/lambda/cloud_main_lambda/bootstrap
-          target/lambda/cloud_bucket_cleaner/bootstrap
-          target/lambda/cloud_sine_generator/bootstrap
+          target/lambda/cloud-main/bootstrap.zip
+          target/lambda/cloud-bucket-cleaner/bootstrap.zip
+          target/lambda/cloud-sine-generator/bootstrap.zip
 
