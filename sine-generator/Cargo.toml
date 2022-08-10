@@ -1,5 +1,5 @@
 [package]
-name = "sine_generator"
+name = "sine-generator"
 version = "0.1.0"
 edition = "2021"
 
