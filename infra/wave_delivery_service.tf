@@ -6,7 +6,7 @@
 //the zipped function source code
 data "archive_file" "wave_delivery_service_zip" {
   type        = "zip"
-  source_dir  = "../cloud_wave_delivery_service" 
+  source_dir  = "../cloud-wave-delivery-service" 
   output_path = "../builds/wave_delivery_service.zip" 
 }
 //the lambda service role
@@ -82,7 +82,8 @@ resource "aws_api_gateway_method" "wave_delivery_service_API_method" {
   http_method   = "GET"
   authorization = "NONE"
   request_parameters = {"method.request.querystring.file_id" = true
-                               "method.request.querystring.request_id" = true}
+                        "method.request.querystring.request_id" = true
+                        "method.request.querystring.offset_num" = true}
 }
 //the API integration
 resource "aws_api_gateway_integration" "wave_delivery_service_API_integration" {
@@ -98,7 +99,8 @@ resource "aws_api_gateway_integration" "wave_delivery_service_API_integration" {
 {
     "queryStringParameters": {
          "file_id": "$input.params('file_id')",
-         "request_id": "$input.params('request_id')"
+         "request_id": "$input.params('request_id')",
+         "offset_num": "$input.params('offset_num')"
          },
     "httpMethod": "GET"
 }
