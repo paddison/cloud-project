@@ -32,9 +32,9 @@ jobs:
     steps:
     - name: Zip Bootstrap Binaries
       run: |
-        zip target/lambda/cloud-main/bootstrap target/lambda/cloud-main/bootstrap.zip
-        zip target/lambda/cloud-bucket-cleaner/bootstrap target/lambda/cloud-bucket-cleaner/bootstrap.zip
-        zip target/lambda/cloud-sine-generator/bootstrap target/lambda/cloud-sine-generator/bootstrap.zip
+        zip target/lambda/cloud-main/bootstrap.zip target/lambda/cloud-main/bootstrap
+        zip target/lambda/cloud-bucket-cleaner/bootstrap.zip target/lambda/cloud-bucket-cleaner/bootstrap
+        zip target/lambda/cloud-sine-generator/bootstrap.zip target/lambda/cloud-sine-generator/bootstrap
         
     
     - name: Upload Artifacts
