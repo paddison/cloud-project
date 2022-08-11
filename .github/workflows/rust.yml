@@ -1,8 +1,18 @@
+# Builds the rust binaries for the lambda functions cloud-main, cloud-bucket-cleaner and cloud-sine-generator
+# The target is cached with a key consisting of the cargo.lock file and the main.rs files of each lambda.
+# The binaries are then uploaded as artifacts in order to be used by terraform.
+
 name: Rust
 
-on: workflow_dispatch # trigger manually for now
+on: 
+  workflow_dispatch:
+#  push:
+#    paths:
+#      - '**.rs'
+#      - '**.toml'
+#      - '**.lock'
+#      - '**.yml'
   
-
 env:
   TF_VAR_TABLE_NAME: "cloud-wave-file" 
   TF_VAR_GLOBAL_INDEX: "cloud-date-time-index"
@@ -10,39 +20,73 @@ env:
   TF_VAR_GENERATOR_LAMBDA: "cloud-sine-generator"
   TF_VAR_CLEANER_LAMBDA: "cloud-bucket-cleaner"
   TF_VAR_MAIN_LAMBDA: "cloud-main"
+  ARTIFACT_PATH: "lambda-binaries"
 
 jobs:
-  build-lambdas:
+
+  checkout-repository:
 
     runs-on: self-hosted
+    steps:
+      - name: print event info
+        run: echo '${{ toJSON(github.event) }}'
+        
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+  build-cache-and-lambda:
+    runs-on: self-hosted
+    needs: checkout-repository
+    outputs:
+      is-cache-hit: ${{ steps.cache-target.output.cache-hit }}
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: cargo lambda build --release
-  
+      - name: Try Cache
+        id: cache-target
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-rust-deps
+        with:
+          path: ./target
+          key: build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}-${{ hashFiles('**/main.rs') }}
+          restore-keys: |
+            build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
+            build-${{ env.cache-name }}
+      # only rebuild if there was a cache miss
+      - if: ${{ steps.cache-target.output.cache-hit == 'false' }}
+        name: Build Lambdas
+        run: cargo lambda build --release --output-format Zip
+      
   upload-artifacts:
+    
+    # only upload artifacts if there was a cache miss
+    if: needs.build-cache-and-lambda.outputs.is-cache-hit == 'false' 
+    
     env:
       BIN_PATH: "target/lambda"
       BIN_NAME: "bootstrap.zip"
       
-    needs: build-lambdas
+    needs: build-cache-and-lambda
     runs-on: self-hosted
     
     steps:
-    - name: Zip Bootstrap Binaries
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT_PATH }}
+          path: |
+            ${{ env.BIN_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
+            ${{ env.BIN_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
+            ${{ env.BIN_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
+  
+  download-artifacts:
+    runs-on: self-hosted
+    needs: upload-artifacts
+    steps:
+    - name: Download Artifacts
+      uses: actions/download-artifact@v3 # not specifying which artifact downloads all artifacts
+    - name: List directory
       run: |
-        zip target/lambda/cloud-main/bootstrap.zip target/lambda/cloud-main/bootstrap
-        zip target/lambda/cloud-bucket-cleaner/bootstrap.zip target/lambda/cloud-bucket-cleaner/bootstrap
-        zip target/lambda/cloud-sine-generator/bootstrap.zip target/lambda/cloud-sine-generator/bootstrap
-        
-    
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: lambda-binaries
-        path: |
-          target/lambda/cloud-main/bootstrap.zip
-          target/lambda/cloud-bucket-cleaner/bootstrap.zip
-          target/lambda/cloud-sine-generator/bootstrap.zip
-
+        ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
+        ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
+        ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
