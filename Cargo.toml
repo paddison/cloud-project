@@ -1,0 +1,7 @@
+[workspace]
+
+members = [
+    "cloud-bucket-cleaner",
+    "cloud-main",
+    "cloud-sine-generator"
+]

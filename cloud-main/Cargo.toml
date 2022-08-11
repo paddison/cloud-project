@@ -1,5 +1,5 @@
 [package]
-name = "cloud_sine_generator"
+name = "cloud-main"
 version = "0.1.0"
 edition = "2021"
 
@@ -17,11 +17,14 @@ edition = "2021"
 [dependencies]
 lambda_http = "0.6.0"
 lambda_runtime = "0.6.0"
-aws-config = "0.15.0"
-aws-sdk-s3 = "0.15.0"
+aws-sdk-lambda = "0.16.0"
+aws-config = "0.46.0"
+aws-sdk-dynamodb = "0.16.0"
+
 tokio = { version = "1", features = ["macros"] }
 tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt"] }
 serde_json = "1.0.82"
-serde = { version = "1.0.140", features = ["derive"] }
-sine_generator = { path = "../sine_generator" }
+chrono = "0.4.19"
+
+sine_generator = { path = "../sine_generator", features = ["data"] }
