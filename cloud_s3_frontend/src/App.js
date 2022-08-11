@@ -10,11 +10,14 @@ function App() {
 
     const [ reqState, setReqState ] = useState("loading...")
 
+    const { REACT_APP_FIRST_REQ_URL } = process.env;
+    const { REACT_APP_SECOND_REQ_URL } = process.env;
+
     async function handleSubmit(specs) {
         setIsSubmit(true);
         console.log("specs: " + JSON.stringify(specs))
 
-        const data = await fetch("https://894xfwphn3.execute-api.eu-central-1.amazonaws.com/demo/cloudmainlambda", {
+        const data = await fetch(REACT_APP_FIRST_REQ_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -35,7 +38,7 @@ function App() {
             let inProgress = true;
 
             while(inProgress) {
-                const res = await fetch(`https://fucavbi4qg.execute-api.eu-central-1.amazonaws.com/demo/wave_delivery_service?file_id=${waveId}&request_id=${reqId}`, {
+                const res = await fetch(`${REACT_APP_SECOND_REQ_URL}?file_id=${waveId}&request_id=${reqId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -53,10 +56,10 @@ function App() {
                     await new Promise(r => setTimeout(r, 2000));
                 } else if (dataLink.headers && dataLink.headers["Content-Type"] === "text/plain") {
                     setReqState("ready to download");
-                    //console.log(dataLink.body)
-                    const buffer = Buffer.from(dataLink.body, 'base64').toString("binary");
-                    //const blob = new Blob(buffer); //{type: "audio/wav"}
-                    const file = new File([buffer], waveId + ".wav");
+                    console.log(dataLink.body)
+                    const buffer = Buffer.from(dataLink.body, 'base64');
+                    console.log(buffer);
+                    const file = new File([buffer], waveId, {type: "audio/wav"});
                     console.log(file)
                     setDownloadUrl(window.URL.createObjectURL(file));
                     setDownloadButtonEnabled(true);

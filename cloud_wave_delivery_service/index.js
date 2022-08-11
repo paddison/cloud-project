@@ -31,7 +31,7 @@ exports.handler = async (event, context) => {
     
     // Create the parameters for getting an object
     const objParams = {
-      Bucket : 'cloud-wav-file-bucket',
+      Bucket : process.env.BUCKET_NAME,
       Key: file_id + ".wav"
     };
     
@@ -40,7 +40,7 @@ exports.handler = async (event, context) => {
             case 'GET':
                 
                 var params = {
-                  TableName : 'wave_file',
+                  TableName : process.env.TABLE_NAME,
                   Key: {
                     id: file_id
                   },

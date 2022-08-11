@@ -60,7 +60,7 @@ function WaveForm(props) {
 
     function updateFrequency(val, index) {
         let newArr = [...frequency];
-        newArr[index] = parseInt(val);
+        newArr[index] = val;
         setFrequency(newArr);
     }
 
@@ -68,20 +68,20 @@ function WaveForm(props) {
     <form onSubmit={handleSubmit} className="WaveForm">
         <label>
             Nr. of Channels:
-            <select value={nrChannels} onChange={(event => {setNrChannels(event.target.value); })}>
+            <select value={nrChannels} onChange={(event => {setNrChannels(parseInt(event.target.value)); })}>
                 { specsRange.wav_spec.number_of_channels.map((opt) => <option value={opt}>{opt}</option> )}
             </select>
         </label>
         <label>
             Sample Rate:
 
-            <select value={sampleRate} onChange={(event => {setSampleRate(event.target.value); })}>
+            <select value={sampleRate} onChange={(event => {setSampleRate(parseInt(event.target.value)); })}>
                 { specsRange.wav_spec.sample_rate.map((opt) => <option value={opt}>{opt}</option> )}
             </select>
         </label>
         <label>
             Bits per Sample:
-            <select value={bitsPerSample} onChange={(event => {setBitsPerSample(event.target.value); })}>
+            <select value={bitsPerSample} onChange={(event => {setBitsPerSample(parseInt(event.target.value)); })}>
                 { specsRange.wav_spec.bits_per_sample.map((opt) => <option value={opt}>{opt}</option> )}
             </select>
         </label>
@@ -89,8 +89,9 @@ function WaveForm(props) {
             Frequencies:
             { frequency.map((val, index) =>
                 <input type="number" value={val} key={"input-" + index} onChange={(event => {
-                    updateFrequency(event.target.value, index);
-                    if (event.target.value < specsRange.frequency[0] && event.target.value > specsRange.frequency[1]) {
+                    const val = parseInt(event.target.value);
+                    updateFrequency(val, index);
+                    if (val < specsRange.frequency[0] && val > specsRange.frequency[1]) {
                         setValid(false);
                     } else {
                         setValid(true);
@@ -103,11 +104,11 @@ function WaveForm(props) {
         </label>
         <label>
             Duration:
-            <input  type="range" min={specsRange.duration[0]} max={specsRange.duration[1]} step="1" id="duration" value={duration} onChange={(event => setDuration(event.target.value))} />
+            <input type="number" min={specsRange.duration[0]} max={specsRange.duration[1]} step="1" id="duration" value={duration} onChange={(event => setDuration(parseInt(event.target.value)))} />
         </label>
         <label>
             Volume:
-            <input type="range" min={specsRange.volume[0]} max={specsRange.volume[1]} step="0.05" id="volume" value={volume} onChange={(event => setVolume(event.target.value))} />
+            <input type="range" min={specsRange.volume[0]} max={specsRange.volume[1]} step="0.05" id="volume" value={volume} onChange={(event => setVolume(parseFloat(event.target.value)))} />
         </label>
     <input type="submit" value="Send" id="sendButton"/>
     </form>

@@ -1,3 +1,13 @@
+terraform {
+  required_providers {
+    local = {
+      source = "hashicorp/local"
+      version = "2.2.3"
+    }
+  }
+}
+
+
 provider "aws" {
   region     = "eu-central-1"
 }
@@ -46,22 +56,21 @@ get_wave_files_bucket_policy
 
 // DynamoDB Table 'wave_file'
 resource "aws_dynamodb_table" "wave_file_table" {
-  name           = "wave_file"
+  name           = var.TABLE_NAME
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
   hash_key       = "id"
-  range_key      = "GameTitle"
 
   attribute {
     name = "id"
     type = "S"
   }
 
-  attribute {
-    name = "request_id"
-    type = "S"
-  }
+  # attribute {
+  #   name = "request_id"
+  #   type = "S"
+  # }
 
   attribute {
     name = "date"
@@ -73,18 +82,18 @@ resource "aws_dynamodb_table" "wave_file_table" {
     type = "S"
   }
 
-  attribute {
-    name = "is_downloaded"
-    type = "BOOL"
-  }
+  # attribute {
+  #   name = "is_downloaded"
+  #   type = "S"
+  # }
 
-  attribute {
-    name = "specs"
-    type = "M"
-  }
+  # attribute {
+  #   name = "specs"
+  #   type = "S"
+  # }
 
   global_secondary_index {
-    name               = "date-time-index"
+    name               = var.GLOBAL_INDEX
     hash_key           = "date"
     range_key          = "time"
     write_capacity     = 10
@@ -96,31 +105,56 @@ resource "aws_dynamodb_table" "wave_file_table" {
 
 // S3 Bucket 'cloud-wav-file-bucket'
 resource "aws_s3_bucket" "cloud-wav-file-bucket" {
-  bucket = "cloud-wav-file-bucket"
+  bucket = var.BUCKET_NAME
 
 }
 
-# todo: create image from current ec2 instance
-// EC2 VM 
-data "aws_ami" "amazon_linux_ami" {
-  most_recent = true
+// S3 Bucket 'react-website-bucket'
+resource "aws_s3_bucket" "react-website-bucket" {
+  bucket = "cloud-react-website-bucket"
 
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-kernel-5.10-hvm-2.0.20220606.1-x86_64-gp2"] #Amazon Linux
-  }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+}
+
+// the website config for the 'cloud-react-website-bucket'
+resource "aws_s3_bucket_website_configuration" "react_website" {
+  bucket = aws_s3_bucket.react-website-bucket.bucket
+
+  index_document {
+    suffix = "index.html"
   }
 }
 
-resource "aws_instance" "waveBuilder_webserver" {
-  ami           = data.aws_ami.amazon_linux_ami.id
-  instance_type = "t2.micro"
+// enables the public access of the 'cloud-react-website-bucket'
+resource "aws_s3_bucket_public_access_block" "public_access" {
+  bucket = aws_s3_bucket.react-website-bucket.id
 
-  tags = {
-    Name = "HelloWorld"
-  }
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
 }
+
+// //
+// files to upload to the 'cloud-react-website-bucket'
+
+# resource "aws_s3_object" "object" {
+#   for_each = fileset("../cloud_s3_frontend/builds/", "*")
+
+#   bucket = aws_s3_bucket.react-website-bucket.name
+#   key    = each.value
+#   source = "../cloud_s3_frontend/builds/${each.value}"
+#   etag   = filemd5("../cloud_s3_frontend/builds/${each.value}")
+
+#   depends_on = [
+#     react_build_script
+#   ]
+# }
+
+# resource "null_resource" "react_build_script" {
+#    provisioner "local-exec" {
+#         command     = "node --version; npm --version; cd ../cloud_s3_frontend/; npm install; npm build;"
+#         # command     = "brew install nodejs; node --version; npm --version; cd ../cloud_s3_frontend/; npm install; npm build;"
+#     }
+# }
+
