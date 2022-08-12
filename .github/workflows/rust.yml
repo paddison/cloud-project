@@ -6,12 +6,13 @@ name: Rust
 
 on: 
   workflow_dispatch:
-#  push:
-#    paths:
-#      - '**.rs'
-#      - '**.toml'
-#      - '**.lock'
-#      - '**.yml'
+  push:
+    paths:
+      - '**.rs'
+      - '**.toml'
+      - '**.lock'
+      - '**.yml'
+      - '**.tf'
   
 env:
   TF_VAR_TABLE_NAME: "cloud-wave-file" 
