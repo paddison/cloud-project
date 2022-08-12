@@ -22,9 +22,9 @@ env:
   TF_VAR_MAIN_LAMBDA: "cloud-main"
   ARTIFACT_PATH: "lambda-binaries"
   BIN_NAME: "bootstrap.zip"
-  TF_VAR_CLEANER_LAMBDA_PATH: ${{ env.ARITFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
-  TF_VAR_GENERATOR_LAMBDA_PATH: ${{ env.ARITFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
-  TF_VAR_MAIN_LAMBDA_PATH: ${{ env.ARITFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}  
+  TF_VAR_CLEANER_LAMBDA_PATH: ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
+  TF_VAR_GENERATOR_LAMBDA_PATH: ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
+  TF_VAR_MAIN_LAMBDA_PATH: ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}  
 
 jobs:
 
