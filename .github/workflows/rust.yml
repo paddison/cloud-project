@@ -96,12 +96,12 @@ jobs:
     runs-on: self-hosted
     environment: production
     needs: download-artifacts
-    env: 
-      TF_VAR_CLEANER_LAMBDA_BOOTSTRAP: "$ARTIFACT_PATH/$TF_VAR_CLEANER_LAMBDA/$BIN_NAME"
-      TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP: "$ARTIFACT_PATH/$TF_VAR_GENERATOR_LAMBDA/$BIN_NAME"
-      TF_VAR_MAIN_LAMBDA_BOOTSTRAP: "$ARTIFACT_PATH/$TF_VAR_MAIN_LAMBDA/$BIN_NAME" 
+    env:  
       TF_VAR_SECRET_KEY: ${{ secrets.TF_VAR_SECRET_KEY }}
       TF_VAR_ACCESS_KEY: ${{ secrets.TF_VAR_ACCESS_KEY }}
+      TF_VAR_CLEANER_LAMBDA_BOOTSTRAP: pre
+      TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP: pre
+      TF_VAR_MAIN_LAMBDA_BOOTSTRAP: pre
 
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -110,6 +110,12 @@ jobs:
         shell: bash
 
     steps:
+    
+    - name: Set Bootstrap env
+      run: |
+        export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
 
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
@@ -119,18 +125,30 @@ jobs:
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: cd infra; terraform init
+      run: | 
+        export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
+        terraform -chdir=infra init 
 
     # Checks that all Terraform configuration files adhere to a canonical format
 #    - name: Terraform Format
-#      run: cd infra; terraform fmt -check
+#      run: terraform -chdir=infra fmt -check infra 
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
-      run: cd infra; terraform plan -input=false
+      run: | 
+        export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
+        terraform -chdir=infra plan -input=false  
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/"main"' # && github.event_name == 'push'
-      run: cd infra; terraform apply -auto-approve -input=false
+      # if: github.ref == 'refs/heads/"main"' # && github.event_name == 'push'
+      run: |
+        export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
+        terraform -chdir=infra apply -auto-approve -input=false
