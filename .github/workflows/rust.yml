@@ -97,8 +97,8 @@ jobs:
     environment: production
     needs: download-artifacts
     env:  
-      TF_VAR_SECRET_KEY: ${{ secrets.TF_VAR_SECRET_KEY }}
-      TF_VAR_ACCESS_KEY: ${{ secrets.TF_VAR_ACCESS_KEY }}
+     # TF_VAR_SECRET_KEY: ${{ secrets.TF_VAR_SECRET_KEY }}
+      # TF_VAR_ACCESS_KEY: ${{ secrets.TF_VAR_ACCESS_KEY }}
       TF_VAR_CLEANER_LAMBDA_BOOTSTRAP: pre
       TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP: pre
       TF_VAR_MAIN_LAMBDA_BOOTSTRAP: pre
