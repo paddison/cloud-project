@@ -129,11 +129,11 @@ jobs:
         export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
         export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
         export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
-        terraform init infra
+        terraform -chdir=infra init 
 
     # Checks that all Terraform configuration files adhere to a canonical format
 #    - name: Terraform Format
-#      run: cd infra; terraform fmt -check infra 
+#      run: terraform -chdir=infra fmt -check infra 
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
@@ -141,7 +141,7 @@ jobs:
         export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
         export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
         export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
-        terraform plan -input=false infra 
+        terraform -chdir=infra plan -input=false  
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
@@ -151,4 +151,4 @@ jobs:
         export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
         export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
         export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
-        terraform apply -auto-approve -input=false infra
+        terraform -chdir=infra apply -auto-approve -input=false
