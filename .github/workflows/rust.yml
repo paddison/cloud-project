@@ -126,9 +126,9 @@ jobs:
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       run: | 
-        export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
-        export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
-        export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=../${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=../${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=../${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
         terraform -chdir=infra init 
 
     # Checks that all Terraform configuration files adhere to a canonical format
@@ -138,9 +138,9 @@ jobs:
     # Generates an execution plan for Terraform
     - name: Terraform Plan
       run: | 
-        export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
-        export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
-        export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=../${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=../${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=../${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
         terraform -chdir=infra plan -input=false  
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
@@ -148,7 +148,7 @@ jobs:
     - name: Terraform Apply
       # if: github.ref == 'refs/heads/"main"' # && github.event_name == 'push'
       run: |
-        export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
-        export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
-        export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=../${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=../${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=../${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
         terraform -chdir=infra apply -auto-approve -input=false
