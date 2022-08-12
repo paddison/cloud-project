@@ -7,6 +7,14 @@ terraform {
   }
 }
 
+cloud {
+  organization = "example-org-4a6a37"
+
+  workspaces {
+    name = "cloud-project"
+  }
+}
+
 
 provider "aws" {
   region     = "eu-central-1"
