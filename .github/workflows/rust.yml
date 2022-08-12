@@ -61,7 +61,7 @@ jobs:
   upload-artifacts:
     
     # only upload artifacts if there was a cache miss
-    if: needs.build-cache-and-lambda.outputs.is-cache-hit == 'false' 
+    #if: needs.build-cache-and-lambda.outputs.is-cache-hit == 'false' 
     
     env:
       BIN_PATH: "target/lambda"
