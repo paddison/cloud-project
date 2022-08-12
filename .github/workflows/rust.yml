@@ -97,8 +97,8 @@ jobs:
     environment: production
     env: 
       TF_VAR_CLEANER_LAMBDA_PATH: "$ARTIFACT_PATH/$TF_VAR_CLEANER_LAMBDA/$BIN_NAME"
-      TF_VAR_GENERATOR_LAMBDA_PATH: ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
-      TF_VAR_MAIN_LAMBDA_PATH: ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}  
+      TF_VAR_GENERATOR_LAMBDA_PATH: "$ARTIFACT_PATH/$TF_VAR_GENERATOR_LAMBDA/$BIN_NAME"
+      TF_VAR_MAIN_LAMBDA_PATH: "$ARTIFACT_PATH/$TF_VAR_MAIN_LAMBDA/$BIN_NAME" 
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
