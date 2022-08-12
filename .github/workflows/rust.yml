@@ -99,6 +99,9 @@ jobs:
     env:  
       TF_VAR_SECRET_KEY: ${{ secrets.TF_VAR_SECRET_KEY }}
       TF_VAR_ACCESS_KEY: ${{ secrets.TF_VAR_ACCESS_KEY }}
+      TF_VAR_CLEANER_LAMBDA_BOOTSTRAP: pre
+      TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP: pre
+      TF_VAR_MAIN_LAMBDA_BOOTSTRAP: pre
 
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -108,11 +111,23 @@ jobs:
 
     steps:
     
+    - name: Check Env before
+      run: |
+        echo $TF_VAR_CLEANER_LAMBDA_BOOTSTRAP
+        echo $TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP
+        echo $TF_VAR_MAIN_LAMBDA_BOOTSTRAP
+    
     - name: Set Bootstrap env
       run: |
         export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
         export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR }}/${{ env.BIN_NAME }}
         export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
+        
+    - name: Check Env after
+      run: |
+        echo $TF_VAR_CLEANER_LAMBDA_BOOTSTRAP
+        echo $TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP
+        echo $TF_VAR_MAIN_LAMBDA_BOOTSTRAP
 
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
