@@ -110,6 +110,12 @@ jobs:
         shell: bash
 
     steps:
+    
+    - name: Set Bootstrap env
+      run: |
+        export TF_VAR_CLEANER_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
+        export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR }}/${{ env.BIN_NAME }}
+        export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
 
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
