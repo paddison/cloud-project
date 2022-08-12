@@ -93,7 +93,7 @@ jobs:
         
   terraform:
     name: 'Terraform'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment: production
     needs: download-artifacts
     env: 
