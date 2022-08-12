@@ -4,6 +4,12 @@ terraform {
       source = "hashicorp/local"
       version = "2.2.3"
     }
+
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+
   }
   cloud {
     organization = "example-org-4a6a37"
@@ -13,9 +19,6 @@ terraform {
     }
   }
 }
-
-
-
 
 provider "aws" {
   region     = "eu-central-1"
