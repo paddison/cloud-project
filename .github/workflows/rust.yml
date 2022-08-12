@@ -96,10 +96,7 @@ jobs:
     runs-on: self-hosted
     environment: production
     needs: download-artifacts
-    env: 
-      TF_VAR_CLEANER_LAMBDA_BOOTSTRAP: ${{ ARTIFACT_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
-      TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP: "$ARTIFACT_PATH/$TF_VAR_GENERATOR_LAMBDA/$BIN_NAME"
-      TF_VAR_MAIN_LAMBDA_BOOTSTRAP: "$ARTIFACT_PATH/$TF_VAR_MAIN_LAMBDA/$BIN_NAME" 
+    env:  
       TF_VAR_SECRET_KEY: ${{ secrets.TF_VAR_SECRET_KEY }}
       TF_VAR_ACCESS_KEY: ${{ secrets.TF_VAR_ACCESS_KEY }}
 
