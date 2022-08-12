@@ -54,8 +54,8 @@ jobs:
             build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
             build-${{ env.cache-name }}
       # only rebuild if there was a cache miss
-      - if: ${{ steps.cache-target.output.cache-hit == 'false' }}
-        name: Build Lambdas
+      # - if: ${{ steps.cache-target.output.cache-hit == 'false' }}
+      - name: Build Lambdas
         run: cargo lambda build --release --output-format Zip
       
   upload-artifacts:
