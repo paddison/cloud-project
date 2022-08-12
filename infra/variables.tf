@@ -25,3 +25,12 @@ variable TABLE_NAME {
 variable GLOBAL_INDEX {
 
 }
+variable MAIN_LAMBDA_BOOTSTRAP {
+
+}
+variable CLEANER_LAMBDA_BOOTSTRAP {
+
+}
+variable GENERATOR_LAMBDA_BOOTSTRAP {
+  
+}
