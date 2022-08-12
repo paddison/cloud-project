@@ -1,7 +1,7 @@
-variable access_key {
+variable ACCESS_KEY {
   
 } 
-variable secret_key {
+variable SECRET_KEY {
 
 } 
 variable MAIN_LAMBDA {
