@@ -95,6 +95,7 @@ jobs:
     name: 'Terraform'
     runs-on: ubuntu-latest
     environment: production
+    needs: download-artifacts
     env: 
       TF_VAR_CLEANER_LAMBDA_PATH: "$ARTIFACT_PATH/$TF_VAR_CLEANER_LAMBDA/$BIN_NAME"
       TF_VAR_GENERATOR_LAMBDA_PATH: "$ARTIFACT_PATH/$TF_VAR_GENERATOR_LAMBDA/$BIN_NAME"
