@@ -100,6 +100,9 @@ jobs:
       TF_VAR_CLEANER_LAMBDA_PATH: "$ARTIFACT_PATH/$TF_VAR_CLEANER_LAMBDA/$BIN_NAME"
       TF_VAR_GENERATOR_LAMBDA_PATH: "$ARTIFACT_PATH/$TF_VAR_GENERATOR_LAMBDA/$BIN_NAME"
       TF_VAR_MAIN_LAMBDA_PATH: "$ARTIFACT_PATH/$TF_VAR_MAIN_LAMBDA/$BIN_NAME" 
+      TF_VAR_SECRET_KEY: ${{ secrets.TF_VAR_SECRET_KEY }}
+      TF_VAR_ACCESS_KEY: ${{ secrets.TF_VAR_ACCESS_KEY }}
+
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
