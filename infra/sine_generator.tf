@@ -21,7 +21,7 @@ resource "aws_iam_role" "sine_generator_role" {
 }
 //the function and its config
 resource "aws_lambda_function" "sine_generator" {
-  filename      = "../builds/cloud_sine_generator/bootstrap.zip" // replace with path of artifact
+  filename      = var.GENERATOR_LAMBDA_BOOTSTRAP // replace with path of artifact
   function_name = var.GENERATOR_LAMBDA
   role          = aws_iam_role.sine_generator_role.arn
   handler       = "bootstrap"
@@ -66,7 +66,7 @@ resource "aws_iam_role" "bucket_cleaner_role" {
 }
 //the function and its config
 resource "aws_lambda_function" "bucket_cleaner" {
-  filename      = "../builds/cloud_bucket_cleaner/bootstrap.zip" // replace with path of artifact
+  filename      = var.CLEANER_LAMBDA_BOOTSTRAP // replace with path of artifact
   function_name = var.CLEANER_LAMBDA
   role          = aws_iam_role.bucket_cleaner_role.arn
   handler       = "bootstrap"

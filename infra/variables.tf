@@ -1,9 +1,9 @@
-variable access_key {
+# variable ACCESS_KEY {
   
-} 
-variable secret_key {
+# } 
+# variable SECRET_KEY {
 
-} 
+# } 
 variable MAIN_LAMBDA {
 
 }
@@ -24,4 +24,13 @@ variable TABLE_NAME {
 }
 variable GLOBAL_INDEX {
 
+}
+variable MAIN_LAMBDA_BOOTSTRAP {
+
+}
+variable CLEANER_LAMBDA_BOOTSTRAP {
+
+}
+variable GENERATOR_LAMBDA_BOOTSTRAP {
+  
 }

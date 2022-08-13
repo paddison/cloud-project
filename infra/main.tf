@@ -4,55 +4,25 @@ terraform {
       source = "hashicorp/local"
       version = "2.2.3"
     }
+
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+
+  }
+  cloud {
+    organization = "example-org-4a6a37"
+
+    workspaces {
+      name = "cloud-project"
+    }
   }
 }
-
 
 provider "aws" {
   region     = "eu-central-1"
 }
-
-/*
-resources:
-
-//Lambdas:
-
-sine_generator
-main_lambda
-wave_delivery_service
-bucket_cleaner
-
-//API Gateways:
-
-MainLambdaOps
-wave_delivery_service-API
-
-//EC2 VM
-
-WaveBuilder_Webserver
-
-//S3
-
-cloud-wav-file-bucket
-bucket_policy
-
-//DynamoDB
-
-wave_file (table)
-
-//IAM Roles
-
-sine_generator_role
-main_lambda_role
-wave_delivery_service_role
-bucket_cleaner_role
-
-//IAM Policies
-
-read_wave_files_db_policy
-get_wave_files_bucket_policy
-
-*/
 
 // DynamoDB Table 'wave_file'
 resource "aws_dynamodb_table" "wave_file_table" {
