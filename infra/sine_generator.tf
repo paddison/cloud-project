@@ -26,8 +26,9 @@ resource "aws_lambda_function" "sine_generator" {
   role          = aws_iam_role.sine_generator_role.arn
   handler       = "bootstrap"
   runtime       = "provided.al2" 
+  timeout       = 30 
 
-   source_code_hash = filebase64sha256(var.GENERATOR_LAMBDA_BOOTSTRAP)
+  source_code_hash = filebase64sha256(var.GENERATOR_LAMBDA_BOOTSTRAP)
 
   ephemeral_storage {
     size = 512 # Min 512 MB and the Max 10240 MB
