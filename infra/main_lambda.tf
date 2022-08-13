@@ -21,15 +21,18 @@ resource "aws_iam_role" "main_lambda_role" {
 }
 //the function and its config
 resource "aws_lambda_function" "main_lambda" {
-  filename      = var.MAIN_LAMBDA_BOOTSTRAP // replace with path of artifact
+  filename      = var.MAIN_LAMBDA_BOOTSTRAP 
   function_name = var.MAIN_LAMBDA 
   handler       = "bootstrap"
   role          = aws_iam_role.main_lambda_role.arn
   runtime       = "provided.al2"
 
+  source_code_hash = filebase64sha256(var.MAIN_LAMBDA_BOOTSTRAP)
+
   ephemeral_storage {
     size = 512 # Min 512 MB and the Max 10240 MB
   }
+
 }
 //assign rights to lambda --> AWSLambdaBasicExecutionRole??
 resource "aws_iam_role_policy_attachment" "main_lambda_right" {

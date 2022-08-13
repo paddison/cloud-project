@@ -21,11 +21,13 @@ resource "aws_iam_role" "sine_generator_role" {
 }
 //the function and its config
 resource "aws_lambda_function" "sine_generator" {
-  filename      = var.GENERATOR_LAMBDA_BOOTSTRAP // replace with path of artifact
+  filename      = var.GENERATOR_LAMBDA_BOOTSTRAP 
   function_name = var.GENERATOR_LAMBDA
   role          = aws_iam_role.sine_generator_role.arn
   handler       = "bootstrap"
-  runtime       = "provided.al2" // Amazon Linux 2?
+  runtime       = "provided.al2" 
+
+   source_code_hash = filebase64sha256(var.GENERATOR_LAMBDA_BOOTSTRAP)
 
   ephemeral_storage {
     size = 512 # Min 512 MB and the Max 10240 MB
@@ -66,11 +68,13 @@ resource "aws_iam_role" "bucket_cleaner_role" {
 }
 //the function and its config
 resource "aws_lambda_function" "bucket_cleaner" {
-  filename      = var.CLEANER_LAMBDA_BOOTSTRAP // replace with path of artifact
+  filename      = var.CLEANER_LAMBDA_BOOTSTRAP 
   function_name = var.CLEANER_LAMBDA
   role          = aws_iam_role.bucket_cleaner_role.arn
   handler       = "bootstrap"
-  runtime       = "provided.al2" // Amazon Linux 2?
+  runtime       = "provided.al2" 
+
+  source_code_hash = filebase64sha256(var.CLEANER_LAMBDA_BOOTSTRAP)
 
   ephemeral_storage {
     size = 512 # Min 512 MB and the Max 10240 MB
