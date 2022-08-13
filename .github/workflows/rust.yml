@@ -164,7 +164,7 @@ jobs:
       with:
         node-version: 16
     - name: build
-      run: builds/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
+      run: sh builds/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
 #    - uses: actions/setup-python@v3
 #      with:
 #        python-version: "3.8"
@@ -175,7 +175,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-central-1
     - name: upload to bucket
-      run: aws s3 cp builds/  s3://${{ env.TF_VAR_REACT_BUCKET }} --recursive
+      run: aws s3 cp cloud_s3_frontend/build  s3://${{ env.TF_VAR_REACT_BUCKET }} --recursive
       
       
     
