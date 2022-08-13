@@ -10,7 +10,7 @@ use tracing::{info, debug};
 
 const GENERATOR_LAMBDA: Option<&str> = option_env!("TF_VAR_GENERATOR_LAMBDA");
 const GENERATOR_LAMBDA_FALLBACK: &str = "cloud-sine-generator";
-const TABLE_NAME: Option<&str> = option_env!("TF_VAR_BUCKET_NAME");
+const TABLE_NAME: Option<&str> = option_env!("TF_VAR_TABLE_NAME");
 const TABLE_NAME_FALLBACK: &str = "cloud-wave-file";
 const ID_SEPARATOR: &str = "_";
 
