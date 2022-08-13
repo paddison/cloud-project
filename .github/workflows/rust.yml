@@ -24,6 +24,7 @@ env:
   TF_VAR_MAIN_LAMBDA: "cloud-main"
   ARTIFACT_PATH: "lambda-binaries"
   BIN_NAME: "bootstrap.zip"
+  TF_VAR_FRONTEND_BUILD_SCRIPT: set_env_vars_for_frontend_build.sh
 
 jobs:
 
@@ -163,7 +164,7 @@ jobs:
       with:
         node-version: 16
     - name: build
-      run: builds/env-var-for-frontend-build.sh
+      run: builds/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
 #    - uses: actions/setup-python@v3
 #      with:
 #        python-version: "3.8"
