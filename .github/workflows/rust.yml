@@ -17,12 +17,14 @@ on:
 env:
   TF_VAR_TABLE_NAME: "cloud-wave-file" 
   TF_VAR_GLOBAL_INDEX: "cloud-date-time-index"
+  TF_VAR_REACT_BUCKET: cloud-react-website-bucket
   TF_VAR_BUCKET_NAME: "cloud-wave-file-bucket"
   TF_VAR_GENERATOR_LAMBDA: "cloud-sine-generator"
   TF_VAR_CLEANER_LAMBDA: "cloud-bucket-cleaner"
   TF_VAR_MAIN_LAMBDA: "cloud-main"
   ARTIFACT_PATH: "lambda-binaries"
   BIN_NAME: "bootstrap.zip"
+  TF_VAR_FRONTEND_BUILD_SCRIPT: set_env_vars_for_frontend_build.sh
 
 jobs:
 
@@ -98,8 +100,6 @@ jobs:
     environment: production
     needs: download-artifacts
     env:  
-     # TF_VAR_SECRET_KEY: ${{ secrets.TF_VAR_SECRET_KEY }}
-      # TF_VAR_ACCESS_KEY: ${{ secrets.TF_VAR_ACCESS_KEY }}
       TF_VAR_CLEANER_LAMBDA_BOOTSTRAP: pre
       TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP: pre
       TF_VAR_MAIN_LAMBDA_BOOTSTRAP: pre
@@ -153,3 +153,29 @@ jobs:
         export TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP=../${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
         export TF_VAR_MAIN_LAMBDA_BOOTSTRAP=../${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
         terraform -chdir=infra apply -auto-approve -input=false
+        
+  build-frontend:
+    needs: terraform
+    runs-on: self-hosted
+    
+    steps:
+    - name: setup-node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - name: build
+      run: builds/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
+#    - uses: actions/setup-python@v3
+#      with:
+#        python-version: "3.8"
+#    - uses: aws-actions/setup-sam@v2
+    - uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-central-1
+    - name: upload to bucket
+      run: aws s3 cp builds/  s3://${{ env.TF_VAR_REACT_BUCKET }} --recursive
+      
+      
+    
