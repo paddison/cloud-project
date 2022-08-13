@@ -13,6 +13,12 @@ resource "local_file" "env_vars_for_frontend_build" {
 #! bin/bash/
 export REACT_APP_FIRST_REQ_URL=${local.main_lambda_url}
 export REACT_APP_SECOND_REQ_URL=${local.wave_delivery_service_url}
+
+cd cloud_s3_frontend
+
+npm install
+npm run-script build
+zip ../builds/build.zip build
 EOF
     filename = "../builds/set_env_vars_for_frontend_build.sh"
 }
