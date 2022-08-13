@@ -62,7 +62,7 @@ resource "aws_api_gateway_rest_api" "main_lambda_API" {
 resource "aws_api_gateway_resource" "main_lambda_API_resource" {
   rest_api_id = aws_api_gateway_rest_api.main_lambda_API.id
   parent_id   = aws_api_gateway_rest_api.main_lambda_API.root_resource_id
-  path_part   = "main-lambda" //replace
+  path_part   = "main-lambda" 
 }
 //the API method
 resource "aws_api_gateway_method" "main_lambda_API_method" {
@@ -76,7 +76,7 @@ resource "aws_api_gateway_integration" "main_lambda_API_integration" {
   rest_api_id   = aws_api_gateway_rest_api.main_lambda_API.id
   resource_id   = aws_api_gateway_resource.main_lambda_API_resource.id
   http_method   = aws_api_gateway_method.main_lambda_API_method.http_method
-  type          = "AWS" //???
+  type          = "AWS" 
   integration_http_method = "POST"
   uri           = aws_lambda_function.main_lambda.invoke_arn
 
@@ -142,7 +142,7 @@ resource "aws_api_gateway_deployment" "main_lambda" {
 resource "aws_api_gateway_stage" "demo_main" {
   deployment_id = aws_api_gateway_deployment.main_lambda.id
   rest_api_id   = aws_api_gateway_rest_api.main_lambda_API.id
-  stage_name    = "demo" // replace with variable
+  stage_name    = "demo" 
 }
 //enabling CORS for the gateway
 module "api-gateway-enable-cors-main" {

@@ -73,7 +73,7 @@ resource "aws_api_gateway_rest_api" "wave_delivery_service_API" {
 resource "aws_api_gateway_resource" "wave_delivery_service_API_resource" {
   rest_api_id = aws_api_gateway_rest_api.wave_delivery_service_API.id
   parent_id   = aws_api_gateway_rest_api.wave_delivery_service_API.root_resource_id
-  path_part   = "wave-delivery-service" // replace
+  path_part   = "wave-delivery-service" 
 }
 //the API method
 resource "aws_api_gateway_method" "wave_delivery_service_API_method" {
@@ -91,7 +91,7 @@ resource "aws_api_gateway_integration" "wave_delivery_service_API_integration" {
   resource_id   = aws_api_gateway_resource.wave_delivery_service_API_resource.id
   http_method   = aws_api_gateway_method.wave_delivery_service_API_method.http_method
   integration_http_method = "POST"
-  type          = "AWS" //???
+  type          = "AWS" 
   uri           = aws_lambda_function.wave_delivery_service.invoke_arn
   # Transforms the incoming XML request to JSON
   request_templates = {
@@ -169,7 +169,7 @@ resource "aws_api_gateway_deployment" "wave_delivery_service" {
 resource "aws_api_gateway_stage" "demo" {
   deployment_id = aws_api_gateway_deployment.wave_delivery_service.id
   rest_api_id   = aws_api_gateway_rest_api.wave_delivery_service_API.id
-  stage_name    = "demo" // replace with variable
+  stage_name    = "demo" 
 }
 //enabling CORS for the gateway
 module "api-gateway-enable-cors" {
