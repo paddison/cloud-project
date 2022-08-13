@@ -10,7 +10,7 @@ output "react_bucket_arn" {
 
 resource "local_file" "env_vars_for_frontend_build" {
     content     = <<EOF
-#! bin/bash/
+#!/bin/bash
 export REACT_APP_FIRST_REQ_URL=${local.main_lambda_url}
 export REACT_APP_SECOND_REQ_URL=${local.wave_delivery_service_url}
 
