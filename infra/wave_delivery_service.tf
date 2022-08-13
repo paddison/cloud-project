@@ -6,8 +6,8 @@
 //the zipped function source code
 data "archive_file" "wave_delivery_service_zip" {
   type        = "zip"
-  source_dir  = "${path.cwd}/cloud-wave-delivery-service" 
-  output_path = "builds/wave_delivery_service.zip" 
+  source_dir  = "../cloud-wave-delivery-service" 
+  output_path = "../builds/wave_delivery_service.zip" 
 }
 //the lambda service role
 resource "aws_iam_role" "wave_delivery_service_role" {
