@@ -58,7 +58,7 @@ jobs:
 
   build-cache-and-lambda:
     runs-on: self-hosted
-    needs: checkout-repository
+    needs: test
     outputs:
       is-cache-hit: ${{ steps.cache-target.output.cache-hit }}
 
