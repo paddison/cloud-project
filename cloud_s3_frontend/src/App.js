@@ -64,9 +64,9 @@ function App() {
                     await new Promise(r => setTimeout(r, 2000));
                 
                 // if the file is ready, a 'text/plain' response is sent
-                } else if (dataFile.headers && dataFile.headers["Content-Type"] === "text/plain") {
+                } else if (dataFile.headers && dataFile.body.status === "ready") {
                     
-                    const buffer = Buffer.from(dataFile.body, 'base64');
+                    const buffer = Buffer.from(dataFile.body.file, 'base64');
                     bufferArray.push(buffer);
 
                     // large files are downloaded in several moves, this is executed if there are still parts left
