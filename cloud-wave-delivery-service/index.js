@@ -114,7 +114,7 @@ exports.handler = async (event, context) => {
                                     objParamsBuffer.Range = "bytes=" + offset + "-" + objSize
                                 } else {
                                     console.log("isLast is false"); 
-                                    objParamsBuffer.Range = "bytes=" + offset + "-" + (offset+byteRange)
+                                    objParamsBuffer.Range = "bytes=" + offset + "-" + (offset+byteRange-1)
                                 }
                             
                                 console.log("objParamsBuffer: " + JSON.stringify(objParamsBuffer))
@@ -149,11 +149,8 @@ exports.handler = async (event, context) => {
 
                         if (ready) {
                             // wraps the file (part) as base64 string
-                            headers = {
-                                'Content-Type': 'text/plain',
-                            };
                             isBase64Encoded = true;
-                            body = file.toString('base64');
+                            body = {status: "ready", file: file.toString('base64')};
                         } else {
                             // tells the frontend to wait and ask again
                             body = {status: "in_progress"};
