@@ -63,7 +63,7 @@ function App() {
                     setReqState("loading...")
                     await new Promise(r => setTimeout(r, 2000));
                 
-                // if the file is ready, a 'text/plain' response is sent
+                // if the file is ready
                 } else if (dataFile.headers && dataFile.body.status === "ready") {
                     
                     const buffer = Buffer.from(dataFile.body.file, 'base64');
