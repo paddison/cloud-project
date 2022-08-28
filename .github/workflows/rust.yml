@@ -89,9 +89,7 @@ jobs:
     env:
       BIN_PATH: "target/lambda"
       
-    needs: 
-      - build-cache-and-lambda
-      - build-frontend
+    needs: build-cache-and-lambda
     runs-on: self-hosted
     
     steps:
