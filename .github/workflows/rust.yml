@@ -98,23 +98,23 @@ jobs:
             ${{ env.BIN_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
             ${{ env.BIN_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
   
-  download-artifacts:
-    runs-on: self-hosted
-    needs: upload-artifacts
-    steps:
-    - name: Download Artifacts
-      uses: actions/download-artifact@v3 # not specifying which artifact downloads all artifacts
-    - name: List directory
-      run: |
-        ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
-        ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
-        ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
+#   download-artifacts:
+#     runs-on: self-hosted
+#     needs: upload-artifacts
+#     steps:
+#     - name: Download Artifacts
+#       uses: actions/download-artifact@v3 # not specifying which artifact downloads all artifacts
+#     - name: List directory
+#       run: |
+#         ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
+#         ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
+#         ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
         
   terraform:
     name: 'Terraform'
     runs-on: self-hosted
     environment: production
-    needs: download-artifacts
+    needs: upload-artifacts
     env:  
       # Sadly, I cannot use envs to declare other envs, so I have to hardcode the paths
       TF_VAR_CLEANER_LAMBDA_BOOTSTRAP: lambda-binaries/cloud-bucket-cleaner/bootstrap.zip
@@ -129,6 +129,14 @@ jobs:
 
     steps:
 
+    - name: Download Artifacts
+      uses: actions/download-artifact@v3 # not specifying which artifact downloads all artifacts
+    
+    - name: List directory # for debugging
+      run: |
+        ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
+        ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
+        ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
 
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
