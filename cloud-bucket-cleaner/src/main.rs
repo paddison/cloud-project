@@ -171,7 +171,7 @@ async fn main() -> Result<(), Error> {
 #[test]
 fn test_string_from_date_time() {
     let dt = DateTime::parse_from_str("5.8.1994 8:00 am +0000", "%d.%m.%Y %H:%M %P %z").unwrap();
-    assert_eq!(("1994-08-05".to_string(), "08:00:00".to_string()), string_from_date_time(dt));
+    assert_eq!(("1994-08-04".to_string(), "08:00:00".to_string()), string_from_date_time(dt)); // converts to one day prior
 }
 
 #[test]

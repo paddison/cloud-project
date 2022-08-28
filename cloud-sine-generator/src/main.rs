@@ -1,13 +1,3 @@
-// TODOS:
-
-// creat meaningful file name
-// don't hard code bucket names, but set via env
-// integrate with db to store metadata
-// try to write integration tests
-// improve errormessages
-// find better way to create file paths
-// 
-
 use std::{fmt::Display, path::{Path, PathBuf}};
 
 use aws_sdk_s3::types::ByteStream;
