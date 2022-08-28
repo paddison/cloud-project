@@ -42,6 +42,10 @@ jobs:
     runs-on: self-hosted
     needs: checkout-repository
     steps:
+      - name: Test Sine Generator Crate
+        run: |
+          cd sine_generator
+          cargo test
       - name: Try Cache
         id: cahce-target
         uses: actions/cache@v3
