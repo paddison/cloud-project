@@ -15,15 +15,15 @@ on:
       - '**.tf'
   
 env:
-  TF_VAR_TABLE_NAME: "cloud-wave-file" 
-  TF_VAR_GLOBAL_INDEX: "cloud-date-time-index"
+  TF_VAR_TABLE_NAME: cloud-wave-file 
+  TF_VAR_GLOBAL_INDEX: cloud-date-time-index
   TF_VAR_REACT_BUCKET: cloud-react-website-bucket
-  TF_VAR_BUCKET_NAME: "cloud-wave-file-bucket"
-  TF_VAR_GENERATOR_LAMBDA: "cloud-sine-generator"
-  TF_VAR_CLEANER_LAMBDA: "cloud-bucket-cleaner"
-  TF_VAR_MAIN_LAMBDA: "cloud-main"
-  ARTIFACT_PATH: "lambda-binaries"
-  BIN_NAME: "bootstrap.zip"
+  TF_VAR_BUCKET_NAME: cloud-wave-file-bucket
+  TF_VAR_GENERATOR_LAMBDA: cloud-sine-generator
+  TF_VAR_CLEANER_LAMBDA: cloud-bucket-cleaner
+  TF_VAR_MAIN_LAMBDA: cloud-main
+  ARTIFACT_PATH: lambda-binaries
+  BIN_NAME: bootstrap.zip
   TF_VAR_FRONTEND_BUILD_SCRIPT: set_env_vars_for_frontend_build.sh
 
 jobs:
@@ -80,17 +80,6 @@ jobs:
             build-${{ env.cache-name }}
       - name: Build Lambdas
         run: cargo lambda build --release --output-format Zip
-  
-  build-frontend:
-    runs-on: self-hosted
-    
-    steps:
-    - name: setup-node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16
-    - name: build
-      run: sh builds/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
       
   upload-artifacts:
     
@@ -99,9 +88,10 @@ jobs:
     
     env:
       BIN_PATH: "target/lambda"
-      FRONTED_PATH: "cloud_s3_frontend/build"
       
-    needs: build-cache-and-lambda
+    needs: 
+      - build-cache-and-lambda
+      - build-frontend
     runs-on: self-hosted
     
     steps:
@@ -113,7 +103,6 @@ jobs:
             ${{ env.BIN_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
             ${{ env.BIN_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
             ${{ env.BIN_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
-            ${{ env.FRONTEND_PATH }}/**
             
         
   terraform:
@@ -167,38 +156,29 @@ jobs:
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
       run: terraform -chdir=infra apply -auto-approve -input=false
-      
+        
+  build-frontend:
+    needs: terraform
+    runs-on: self-hosted
+    
+    steps:
+    - name: setup-node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - name: build
+      run: sh builds/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
+#    - uses: actions/setup-python@v3
+#      with:
+#        python-version: "3.8"
+#    - uses: aws-actions/setup-sam@v2
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-central-1
-        
-    - name: Upload frontend to bucket
+    - name: upload to bucket
       run: aws s3 cp cloud_s3_frontend/build  s3://${{ env.TF_VAR_REACT_BUCKET }} --recursive
-        
-#   build-frontend:
-#     needs: terraform
-#     runs-on: self-hosted
-    
-#     steps:
-#     - name: setup-node
-#       uses: actions/setup-node@v3
-#       with:
-#         node-version: 16
-#     - name: build
-#       run: sh builds/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
-# #    - uses: actions/setup-python@v3
-# #      with:
-# #        python-version: "3.8"
-# #    - uses: aws-actions/setup-sam@v2
-#     - uses: aws-actions/configure-aws-credentials@v1
-#       with:
-#         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#         aws-region: eu-central-1
-#     - name: upload to bucket
-#       run: aws s3 cp cloud_s3_frontend/build  s3://${{ env.TF_VAR_REACT_BUCKET }} --recursive
       
       
     
