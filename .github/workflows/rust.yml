@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v3
   
   test:
-    runs-on: self-hosted
+    runs-on: macos-12
     needs: checkout-repository
     steps:
       - name: Test Sine Generator Crate
@@ -47,7 +47,7 @@ jobs:
           cd sine_generator
           cargo test
       - name: Try Cache
-        id: cahce-target
+        id: cache-test
         uses: actions/cache@v3
         env:
           cache-name: cache-rust-deps-test
@@ -61,7 +61,7 @@ jobs:
         run: cargo test --release
 
   build-cache-and-lambda:
-    runs-on: self-hosted
+    runs-on: macos-12
     needs: test
     outputs:
       is-cache-hit: ${{ steps.cache-target.output.cache-hit }}
@@ -79,7 +79,10 @@ jobs:
             build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
             build-${{ env.cache-name }}
       - name: Build Lambdas
-        run: cargo lambda build --release --output-format Zip
+        run: |
+          brew tap cargo-lambda/cargo-lambda
+          brew install cargo-lambda
+          cargo lambda build --release --output-format Zip
       
   upload-artifacts:
     
@@ -105,7 +108,7 @@ jobs:
         
   terraform:
     name: 'Terraform'
-    runs-on: self-hosted
+    runs-on: macos-12
     environment: production
     needs: upload-artifacts
     env:  
@@ -163,7 +166,7 @@ jobs:
         
   build-frontend:
     needs: terraform
-    runs-on: self-hosted
+    runs-on: macos-12
     
     steps:
     - name: setup-node
