@@ -95,4 +95,24 @@ resource "aws_iam_role_policy_attachment" "bucket_cleaner_right_basic" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+// Eventbridge Rule for triggering bucket cleaner lambda
+resource "aws_cloudwatch_event_rule" "invoke_cleaner" {
+  name = cloud_trigger_bucket_cleaner_2
+  schedule_expression = "cron(5 0 * * ? *)"
+  
+}
+
+// add bucket cleaner lambda as target for Eventbridge rule
+resource "aws_cloudwatch_event_target" "invoke_cleaner" {
+  rule = aws_cloudwatch_event_rule.invoke_cleaner.id
+  arn = aws_lambda_function.bucket_cleaner.arn
+}
+
+// give eventbridge rule the correct access rights
+resource "aws_lambda_permission" "allow_invoke_cleaner" {
+  action = "lambda::InvokeFunction"
+  function_name = aws_lambda_function.bucket_cleaner
+  principal = events.amazonaws.com
+  source_arn = aws_cloudwatch_event_rule.invoke_cleaner.arn
+}
 
