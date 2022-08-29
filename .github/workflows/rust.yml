@@ -42,6 +42,7 @@ jobs:
     runs-on: macos-12
     needs: checkout-repository
     steps:
+      - uses: actions/checkout@v3
       - name: Test Sine Generator Crate
         run: |
           cd sine_generator
@@ -67,6 +68,7 @@ jobs:
       is-cache-hit: ${{ steps.cache-target.output.cache-hit }}
 
     steps:
+      - uses: actions/checkout@v3
       - name: Try Cache
         id: cache-target
         uses: actions/cache@v3
@@ -96,6 +98,7 @@ jobs:
     runs-on: self-hosted
     
     steps:
+      - uses: actions/checkout@v3
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -124,7 +127,7 @@ jobs:
         shell: bash
 
     steps:
-
+    - uses: actions/checkout@v3
     - name: Download Artifacts
       uses: actions/download-artifact@v3 # not specifying which artifact downloads all artifacts
     
