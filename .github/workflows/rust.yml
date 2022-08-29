@@ -110,9 +110,9 @@ jobs:
     needs: upload-artifacts
     env:  
       # Sadly, I cannot use envs to declare other envs, so I have to hardcode the paths
-      TF_VAR_CLEANER_LAMBDA_BOOTSTRAP: lambda-binaries/cloud-bucket-cleaner/bootstrap.zip
-      TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP: lambda-binaries/cloud-sine-generator/bootstrap.zip
-      TF_VAR_MAIN_LAMBDA_BOOTSTRAP: lambda-binaries/cloud-main/bootstrap.zip
+      TF_VAR_CLEANER_LAMBDA_BOOTSTRAP: ../lambda-binaries/cloud-bucket-cleaner/bootstrap.zip
+      TF_VAR_GENERATOR_LAMBDA_BOOTSTRAP: ../lambda-binaries/cloud-sine-generator/bootstrap.zip
+      TF_VAR_MAIN_LAMBDA_BOOTSTRAP: ../lambda-binaries/cloud-main/bootstrap.zip
 
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
