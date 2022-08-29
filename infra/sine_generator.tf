@@ -111,7 +111,7 @@ resource "aws_cloudwatch_event_target" "invoke_cleaner" {
 // give eventbridge rule the correct access rights
 resource "aws_lambda_permission" "allow_invoke_cleaner" {
   action = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.bucket_cleaner
+  function_name = aws_lambda_function.bucket_cleaner.function_name
   principal = "events.amazonaws.com"
   source_arn = aws_cloudwatch_event_rule.invoke_cleaner.arn
 }
