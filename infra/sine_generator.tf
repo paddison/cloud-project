@@ -104,7 +104,7 @@ resource "aws_cloudwatch_event_rule" "invoke_cleaner" {
 
 // add bucket cleaner lambda as target for Eventbridge rule
 resource "aws_cloudwatch_event_target" "invoke_cleaner" {
-  rule = aws_cloudwatch_event_rule.invoke_cleaner.id
+  rule = aws_cloudwatch_event_rule.invoke_cleaner_2.id
   arn = aws_lambda_function.bucket_cleaner.arn
 }
 
@@ -113,6 +113,6 @@ resource "aws_lambda_permission" "allow_invoke_cleaner" {
   action = "lambda::InvokeFunction"
   function_name = aws_lambda_function.bucket_cleaner
   principal = events.amazonaws.com
-  source_arn = aws_cloudwatch_event_rule.invoke_cleaner.arn
+  source_arn = aws_cloudwatch_event_rule.invoke_cleaner_2.arn
 }
 
