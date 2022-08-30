@@ -45,7 +45,12 @@ jobs:
         env:
           cache-name: cache-rust-deps-test
         with:
-          path: ./target
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target
           key: test-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}-${{ hashFiles('**/main.rs') }}
           restore-keys: |
             build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
