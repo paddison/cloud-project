@@ -2,7 +2,7 @@
 # The target is cached with a key consisting of the cargo.lock file and the main.rs files of each lambda.
 # The binaries are then uploaded as artifacts in order to be used by terraform.
 
-name: Rust
+name: Deployment
 
 on: 
   workflow_dispatch:
@@ -28,49 +28,43 @@ env:
   TF_VAR_FRONTEND_BUILD_SCRIPT: set_env_vars_for_frontend_build.sh
 
 jobs:
-
-#   checkout-repository:
-
-#     runs-on: self-hosted
-#     steps:
-#       - name: print event info
-#         run: echo '${{ toJSON(github.event) }}'
-        
-#       - name: Checkout Repo
-#         uses: actions/checkout@v3
   
-#   test:
-#     runs-on: macos-12
-#     steps:
-#       - uses: actions/checkout@v3
-#       - name: Test Sine Generator Crate
-#         run: |
-#           cd sine_generator
-#           cargo test
-#       - name: Try Cache
-#         id: cache-test
-#         uses: actions/cache@v3
-#         env:
-#           cache-name: cache-rust-deps-test
-#         with:
-#           path: ./target
-#           key: test-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}-${{ hashFiles('**/main.rs') }}
-#           restore-keys: |
-#             build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
-#             build-${{ env.cache-name }}
-#       - name: Test Lambdas
-#         run: cargo test --release
-
-  build-cache-and-lambda:
+  test-rust-lambdas:
     runs-on: macos-12
-#     needs: test
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Test Sine Generator Crate
+        run: |
+          cd sine_generator
+          cargo test
+          
+      - name: Try Cache
+        id: cache-test
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-rust-deps-test
+        with:
+          path: ./target
+          key: test-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}-${{ hashFiles('**/main.rs') }}
+          restore-keys: |
+            build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
+            build-${{ env.cache-name }}
+            
+      - name: Test Lambdas
+        run: cargo test --release
+
+  build-rust-lambdas:
+    runs-on: macos-12
+    needs: test-rust-lambdas
     outputs:
-      is-cache-hit: ${{ steps.cache-target.output.cache-hit }}
+      is-cache-hit: ${{ steps.cache-target.output.cache-hit }} # might be useful in the future
     env:
       BIN_PATH: "target/lambda"
 
     steps:
       - uses: actions/checkout@v3
+      
       - name: Try Cache
         id: cache-target
         uses: actions/cache@v3
@@ -82,11 +76,13 @@ jobs:
           restore-keys: |
             build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
             build-${{ env.cache-name }}
+            
       - name: Build Lambdas
         run: |
           brew tap cargo-lambda/cargo-lambda
           brew install cargo-lambda
           cargo lambda build --release --output-format Zip
+          
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -95,27 +91,12 @@ jobs:
             ${{ env.BIN_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
             ${{ env.BIN_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
             ${{ env.BIN_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
-      
-#   upload-artifacts:
-    
-#     # only upload artifacts if there was a cache miss
-#     #if: needs.build-cache-and-lambda.outputs.is-cache-hit == 'false' 
-    
-
-      
-#     needs: build-cache-and-lambda
-#     runs-on: self-hosted
-    
-#     steps:
-#       - uses: actions/checkout@v3
-     
-            
         
   terraform:
     name: 'Terraform'
     runs-on: macos-12
     environment: production
-    needs: build-cache-and-lambda
+    needs: build-rust-lambdas
     env:  
       # Sadly, I cannot use envs to declare other envs, so I have to hardcode the paths
       TF_VAR_CLEANER_LAMBDA_BOOTSTRAP: ../lambda-binaries/cloud-bucket-cleaner/bootstrap.zip
@@ -135,11 +116,6 @@ jobs:
       with:
         name: ${{ env.LAMBDA_ARTIFACT_PATH }}
         path: ${{ env.LAMBDA_ARTIFACT_PATH }}
-    
-    - name: Debug
-      run: |
-        pwd
-        ls
     
     - uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -166,8 +142,6 @@ jobs:
     - name: Terraform Plan
       run: terraform -chdir=infra plan -input=false  
 
-      # On push to "main", build or change infrastructure according to Terraform configuration files
-      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
       run: terraform -chdir=infra apply -auto-approve -input=false
     
@@ -184,32 +158,26 @@ jobs:
     
     steps:
     - uses: actions/checkout@v3
+    
     - name: setup-node
       uses: actions/setup-node@v3
       with:
         node-version: 16
+        
     - name: download-build-script
       uses: actions/download-artifact@v3
       with:
         name: ${{ env.FRONTEND_ARTIFACT_PATH }}
         path: ${{ env.FRONTEND_ARTIFACT_PATH }}
-    - name: debug-info
-      run: |
-        pwd
-        ls -al
+
     - name: build
       run: sh ${{ env.FRONTEND_ARTIFACT_PATH }}/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
-#    - uses: actions/setup-python@v3
-#      with:
-#        python-version: "3.8"
-#    - uses: aws-actions/setup-sam@v2
+
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-central-1
+        
     - name: upload to bucket
       run: aws s3 cp cloud_s3_frontend/build  s3://${{ env.TF_VAR_REACT_BUCKET }} --recursive
-      
-      
-    
