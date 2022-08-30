@@ -59,7 +59,10 @@ data "aws_iam_policy_document" "allow_access_to_wave_files" {
   statement {
     principals {
       type        = "AWS"
-      identifiers = [aws_lambda_function.wave_delivery_service.arn, aws_lambda_function.main_lambda.arn, aws_lambda_function.sine_generator.arn, aws_lambda_function.bucket_cleaner.arn] //lambda roles that need access to the bucket: wave_delivery_service, main_lamda, bucket_cleaner
+      identifiers = [aws_lambda_function.wave_delivery_service.arn, 
+      aws_lambda_function.main_lambda.arn, 
+      aws_lambda_function.sine_generator.arn, 
+      aws_lambda_function.bucket_cleaner.arn] //lambda roles that need access to the bucket
     }
 
     actions = [

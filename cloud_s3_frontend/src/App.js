@@ -60,12 +60,14 @@ function App() {
 
                 // as long as the file is not ready yet the file is inquired every 2 seconds
                 if (dataFile.body?.status === "in_progress") {
+                    console.log("file is in progress...")
                     setReqState("loading...")
                     await new Promise(r => setTimeout(r, 2000));
                 
                 // if the file is ready
                 } else if (dataFile.headers && dataFile.body.status === "ready") {
                     
+                    console.log("file download is in progress...")
                     const buffer = Buffer.from(dataFile.body.file, 'base64');
                     bufferArray.push(buffer);
 
@@ -77,6 +79,7 @@ function App() {
 
                     // all parts get put together and a file and download link get created
                     } else {
+                        console.log("file download is in ready")
                         const file = new File(bufferArray, waveId, {type: "audio/wav"});
                         setReqState("ready to download");
                         setDownloadUrl(window.URL.createObjectURL(file));
