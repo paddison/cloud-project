@@ -115,7 +115,7 @@ jobs:
     name: 'Terraform'
     runs-on: macos-12
     environment: production
-#     needs: build-cache-and-lambda
+    needs: build-cache-and-lambda
     env:  
       # Sadly, I cannot use envs to declare other envs, so I have to hardcode the paths
       TF_VAR_CLEANER_LAMBDA_BOOTSTRAP: ../lambda-binaries/cloud-bucket-cleaner/bootstrap.zip
