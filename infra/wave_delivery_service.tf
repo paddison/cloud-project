@@ -32,6 +32,7 @@ resource "aws_lambda_function" "wave_delivery_service" {
   role          = aws_iam_role.wave_delivery_service_role.arn
   handler       = "index.handler"
   runtime       = "nodejs12.x"
+  timeout       = 10
 
   environment {
     variables = {"TABLE_NAME"="${var.TABLE_NAME}" 
