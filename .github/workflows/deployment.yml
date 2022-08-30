@@ -61,40 +61,40 @@ jobs:
 #       - name: Test Lambdas
 #         run: cargo test --release
 
-#   build-cache-and-lambda:
-#     runs-on: macos-12
-#     needs: test
-#     outputs:
-#       is-cache-hit: ${{ steps.cache-target.output.cache-hit }}
-#     env:
-#       BIN_PATH: "target/lambda"
+  build-cache-and-lambda:
+    runs-on: macos-12
+    needs: test
+    outputs:
+      is-cache-hit: ${{ steps.cache-target.output.cache-hit }}
+    env:
+      BIN_PATH: "target/lambda"
 
-#     steps:
-#       - uses: actions/checkout@v3
-#       - name: Try Cache
-#         id: cache-target
-#         uses: actions/cache@v3
-#         env:
-#           cache-name: cache-rust-deps
-#         with:
-#           path: ./target
-#           key: build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}-${{ hashFiles('**/main.rs') }}
-#           restore-keys: |
-#             build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
-#             build-${{ env.cache-name }}
-#       - name: Build Lambdas
-#         run: |
-#           brew tap cargo-lambda/cargo-lambda
-#           brew install cargo-lambda
-#           cargo lambda build --release --output-format Zip
-#       - name: Upload Artifacts
-#         uses: actions/upload-artifact@v3
-#         with:
-#           name: ${{ env.LAMBDA_ARTIFACT_PATH }}
-#           path: |
-#             ${{ env.BIN_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
-#             ${{ env.BIN_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
-#             ${{ env.BIN_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Try Cache
+        id: cache-target
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-rust-deps
+        with:
+          path: ./target
+          key: build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}-${{ hashFiles('**/main.rs') }}
+          restore-keys: |
+            build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
+            build-${{ env.cache-name }}
+      - name: Build Lambdas
+        run: |
+          brew tap cargo-lambda/cargo-lambda
+          brew install cargo-lambda
+          cargo lambda build --release --output-format Zip
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.LAMBDA_ARTIFACT_PATH }}
+          path: |
+            ${{ env.BIN_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
+            ${{ env.BIN_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
+            ${{ env.BIN_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
       
 #   upload-artifacts:
     
