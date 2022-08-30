@@ -92,7 +92,14 @@ async fn function_handler(event: LambdaEvent<Value>) -> Result<Value, Error> {
     let lambda_payload = json!({ "wav_id": partition_key, "wav_data": body["wav_data"], "wav_spec": body["wav_spec"] });
     
     info!("Invoking lambda with:\n{:?}", lambda_payload);
-    let lambda = lambda_client.invoke().invocation_type(InvocationType::Event).function_name(GENERATOR_LAMBDA.unwrap_or(GENERATOR_LAMBDA_FALLBACK)).payload(Blob::new(lambda_payload.to_string())).send().await?; // don't wait for response
+    let lambda = lambda_client
+        .invoke()
+        .invocation_type(InvocationType::Event)
+        .function_name(GENERATOR_LAMBDA.unwrap_or(GENERATOR_LAMBDA_FALLBACK))
+        .payload(Blob::new(lambda_payload.to_string()))
+        .send()
+        .await?; 
+    
     debug!("Lambda output {:?}", lambda);
 
     let response = json!({"id": partition_key, "request_id": context.request_id});
