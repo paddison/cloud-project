@@ -191,9 +191,9 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: ${{ env.FRONTEND_ARTIFACT_PATH }}
-        path: ${{ env.FRONTEND_ARTIFACT_PATH }}
+        path: .
     - name: build
-      run: sh ${{ env.FRONTEND_ARTIFACT_PATH }}/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
+      run: sh ${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
 #    - uses: actions/setup-python@v3
 #      with:
 #        python-version: "3.8"
