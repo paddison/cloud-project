@@ -140,12 +140,6 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-central-1
-    
-    - name: List directory # for debugging
-      run: |
-        ls ${{ env.LAMBDA_ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
-        ls ${{ env.LAMBDA_ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
-        ls ${{ env.LAMBDA_ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
 
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
