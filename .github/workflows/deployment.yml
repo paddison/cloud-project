@@ -39,62 +39,62 @@ jobs:
 #       - name: Checkout Repo
 #         uses: actions/checkout@v3
   
-  test:
-    runs-on: macos-12
-    steps:
-      - uses: actions/checkout@v3
-      - name: Test Sine Generator Crate
-        run: |
-          cd sine_generator
-          cargo test
-      - name: Try Cache
-        id: cache-test
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-rust-deps-test
-        with:
-          path: ./target
-          key: test-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}-${{ hashFiles('**/main.rs') }}
-          restore-keys: |
-            build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
-            build-${{ env.cache-name }}
-      - name: Test Lambdas
-        run: cargo test --release
+#   test:
+#     runs-on: macos-12
+#     steps:
+#       - uses: actions/checkout@v3
+#       - name: Test Sine Generator Crate
+#         run: |
+#           cd sine_generator
+#           cargo test
+#       - name: Try Cache
+#         id: cache-test
+#         uses: actions/cache@v3
+#         env:
+#           cache-name: cache-rust-deps-test
+#         with:
+#           path: ./target
+#           key: test-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}-${{ hashFiles('**/main.rs') }}
+#           restore-keys: |
+#             build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
+#             build-${{ env.cache-name }}
+#       - name: Test Lambdas
+#         run: cargo test --release
 
-  build-cache-and-lambda:
-    runs-on: macos-12
-    needs: test
-    outputs:
-      is-cache-hit: ${{ steps.cache-target.output.cache-hit }}
-    env:
-      BIN_PATH: "target/lambda"
+#   build-cache-and-lambda:
+#     runs-on: macos-12
+#     needs: test
+#     outputs:
+#       is-cache-hit: ${{ steps.cache-target.output.cache-hit }}
+#     env:
+#       BIN_PATH: "target/lambda"
 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Try Cache
-        id: cache-target
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-rust-deps
-        with:
-          path: ./target
-          key: build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}-${{ hashFiles('**/main.rs') }}
-          restore-keys: |
-            build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
-            build-${{ env.cache-name }}
-      - name: Build Lambdas
-        run: |
-          brew tap cargo-lambda/cargo-lambda
-          brew install cargo-lambda
-          cargo lambda build --release --output-format Zip
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.LAMBDA_ARTIFACT_PATH }}
-          path: |
-            ${{ env.BIN_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
-            ${{ env.BIN_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
-            ${{ env.BIN_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
+#     steps:
+#       - uses: actions/checkout@v3
+#       - name: Try Cache
+#         id: cache-target
+#         uses: actions/cache@v3
+#         env:
+#           cache-name: cache-rust-deps
+#         with:
+#           path: ./target
+#           key: build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}-${{ hashFiles('**/main.rs') }}
+#           restore-keys: |
+#             build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
+#             build-${{ env.cache-name }}
+#       - name: Build Lambdas
+#         run: |
+#           brew tap cargo-lambda/cargo-lambda
+#           brew install cargo-lambda
+#           cargo lambda build --release --output-format Zip
+#       - name: Upload Artifacts
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: ${{ env.LAMBDA_ARTIFACT_PATH }}
+#           path: |
+#             ${{ env.BIN_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
+#             ${{ env.BIN_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
+#             ${{ env.BIN_PATH }}/${{ env.TF_VAR_GENERATOR_LAMBDA }}/${{ env.BIN_NAME }}
       
 #   upload-artifacts:
     
@@ -115,7 +115,7 @@ jobs:
     name: 'Terraform'
     runs-on: macos-12
     environment: production
-    needs: build-cache-and-lambda
+#     needs: build-cache-and-lambda
     env:  
       # Sadly, I cannot use envs to declare other envs, so I have to hardcode the paths
       TF_VAR_CLEANER_LAMBDA_BOOTSTRAP: ../lambda-binaries/cloud-bucket-cleaner/bootstrap.zip
@@ -183,6 +183,7 @@ jobs:
     runs-on: macos-12
     
     steps:
+    - name: checkout-repo
     - name: setup-node
       uses: actions/setup-node@v3
       with:
@@ -191,7 +192,11 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: ${{ env.FRONTEND_ARTIFACT_PATH }}
-        path: .
+        path: ${{ env.FRONTEND_ARTIFACT_PATH }}
+    - name: debug-info
+      run: |
+        pwd
+        ls -al
     - name: build
       run: sh ${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
 #    - uses: actions/setup-python@v3
