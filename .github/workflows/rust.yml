@@ -134,6 +134,7 @@ jobs:
       uses: actions/download-artifact@v3 
       with:
         name: ${{ env.LAMBDA_ARTIFACT_PATH }}
+        path: ${{ env.LAMBDA_ARTIFACT_PATH }}
     
     - name: Debug
       run: |
