@@ -63,7 +63,7 @@ jobs:
 
   build-cache-and-lambda:
     runs-on: macos-12
-    needs: test
+#     needs: test
     outputs:
       is-cache-hit: ${{ steps.cache-target.output.cache-hit }}
     env:
