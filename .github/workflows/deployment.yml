@@ -64,6 +64,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+     
+      - name: Install cargo-lambda
+        run: |
+          brew tap cargo-lambda/cargo-lambda
+          brew install cargo-lambda
       
       - name: Try Cache
         id: cache-target
@@ -78,10 +83,7 @@ jobs:
             build-${{ env.cache-name }}
             
       - name: Build Lambdas
-        run: |
-          brew tap cargo-lambda/cargo-lambda
-          brew install cargo-lambda
-          cargo lambda build --release --output-format Zip
+        run: cargo lambda build --release --output-format Zip
           
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
