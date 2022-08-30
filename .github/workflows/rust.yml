@@ -135,6 +135,11 @@ jobs:
       with:
         name: ${{ env.LAMBDA_ARTIFACT_PATH }}
     
+    - name: Debug
+      run: |
+        pwd
+        ls
+    
     - uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
