@@ -191,6 +191,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: ${{ env.FRONTEND_ARTIFACT_PATH }}
+        path: ${{ env.FRONTEND_ARTIFACT_PATH }}
     - name: build
       run: sh ${{ env.FRONTEND_ARTIFACT_PATH }}/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
 #    - uses: actions/setup-python@v3
