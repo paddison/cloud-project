@@ -22,7 +22,8 @@ env:
   TF_VAR_GENERATOR_LAMBDA: cloud-sine-generator
   TF_VAR_CLEANER_LAMBDA: cloud-bucket-cleaner
   TF_VAR_MAIN_LAMBDA: cloud-main
-  ARTIFACT_PATH: lambda-binaries
+  LAMBDA_ARTIFACT_PATH: lambda-binaries
+  FRONTEND_ARTIFACT_PATH: builds
   BIN_NAME: bootstrap.zip
   TF_VAR_FRONTEND_BUILD_SCRIPT: set_env_vars_for_frontend_build.sh
 
@@ -89,7 +90,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.ARTIFACT_PATH }}
+          name: ${{ env.LAMBDA_ARTIFACT_PATH }}
           path: |
             ${{ env.BIN_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}/${{ env.BIN_NAME }}
             ${{ env.BIN_PATH }}/${{ env.TF_VAR_CLEANER_LAMBDA }}/${{ env.BIN_NAME }}
@@ -130,7 +131,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Download Artifacts
-      uses: actions/download-artifact@v3 # not specifying which artifact downloads all artifacts
+      uses: actions/download-artifact@v3 
+      with:
+        name: ${{ env.LAMBDA_ARTIFACT_PATH }}
     
     - uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -140,9 +143,9 @@ jobs:
     
     - name: List directory # for debugging
       run: |
-        ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
-        ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
-        ls ${{ env.ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
+        ls ${{ env.LAMBDA_ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
+        ls ${{ env.LAMBDA_ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
+        ls ${{ env.LAMBDA_ARTIFACT_PATH }}/${{ env.TF_VAR_MAIN_LAMBDA }}
 
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
@@ -167,6 +170,13 @@ jobs:
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
       run: terraform -chdir=infra apply -auto-approve -input=false
+    
+    - name: upload-frontend-build-script
+      uses: actions/upload-artifact@v3
+      with:
+          name: ${{ env.FRONTEND_ARTIFACT_PATH }}
+          path: |
+            ${{ env.FRONTEND_ARTIFACT_PATH }}/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
         
   build-frontend:
     needs: terraform
@@ -177,8 +187,12 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 16
+    - name: download-build-script
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ env.FRONTEND_ARTIFACT_PATH }}
     - name: build
-      run: sh builds/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
+      run: sh ${{ env.FRONTEND_ARTIFACT_PATH }}/${{ env.TF_VAR_FRONTEND_BUILD_SCRIPT }}
 #    - uses: actions/setup-python@v3
 #      with:
 #        python-version: "3.8"
