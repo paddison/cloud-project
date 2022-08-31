@@ -60,11 +60,12 @@ Gets Invoked once a day. Deletes old and downloaded files from [WaveBucket](#wav
 Gets invoked by [Frontend](link). Checks in [WaveBucket](#wavebucket) if a file is ready and sends it back to the client. 
 [More info](link).
 
-### EC2
+### Frontend
 
-#### Frontend
+#### S3 Bucket
 
-Blabla keien ahnung
+Is accessible via this link: http://cloud-react-website-bucket.s3-website.eu-central-1.amazonaws.com/
+A user can specify certain parameters for a wav fail and wait for it to download.
 
 ### Storage
 
